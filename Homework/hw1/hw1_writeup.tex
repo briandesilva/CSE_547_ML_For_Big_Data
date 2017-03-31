@@ -1,0 +1,241 @@
+\documentclass{article}
+
+\usepackage{fancyhdr}
+\usepackage{extramarks}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{caption,subcaption}
+\usepackage{subfig}
+\usepackage{enumerate}          % For enumerates indexed by letters
+\usepackage{bm}                 % For bold letters
+\usepackage{algorithm2e}        % For pseudocode
+
+
+
+% 
+% Sham's macros
+% 
+% \input{../macros/gww_defs}
+% \input{../macros/gww_chars}
+\input{../macros/defs}
+
+%
+% Basic Document Settings
+%
+
+\topmargin=-0.45in
+\evensidemargin=0in
+\oddsidemargin=0in
+\textwidth=6.5in
+\textheight=9.0in
+\headsep=0.25in
+
+\linespread{1.1}
+
+\pagestyle{fancy}
+\lhead{\hmwkAuthorName}
+\chead{\hmwkClass:\ \hmwkTitle}
+\rhead{\firstxmark}
+\lfoot{\lastxmark}
+\cfoot{\thepage}
+
+\renewcommand\headrulewidth{0.4pt}
+\renewcommand\footrulewidth{0.4pt}
+
+\setlength\parindent{0pt}
+
+%
+% Create Problem Sections
+%
+
+\newcommand{\enterProblemHeader}[1]{
+    \nobreak\extramarks{}{Problem \arabic{#1} continued on next page\ldots}\nobreak{}
+    \nobreak\extramarks{Problem \arabic{#1} (continued)}{Problem \arabic{#1} continued on next page\ldots}\nobreak{}
+}
+
+\newcommand{\exitProblemHeader}[1]{
+    \nobreak\extramarks{Problem \arabic{#1} (continued)}{Problem \arabic{#1} continued on next page\ldots}\nobreak{}
+    \stepcounter{#1}
+    \nobreak\extramarks{Problem \arabic{#1}}{}\nobreak{}
+}
+
+\setcounter{secnumdepth}{0}
+\newcounter{partCounter}
+\newcounter{homeworkProblemCounter}
+\setcounter{homeworkProblemCounter}{1}
+\nobreak\extramarks{Problem \arabic{homeworkProblemCounter}}{}\nobreak{}
+
+%
+% Homework Problem Environment
+%
+% This environment takes an optional argument. When given, it will adjust the
+% problem counter. This is useful for when the problems given for your
+% assignment aren't sequential. See the last 3 problems of this template for an
+% example.
+%
+\newenvironment{homeworkProblem}[1][-1]{
+    \ifnum#1>0
+        \setcounter{homeworkProblemCounter}{#1}
+    \fi
+    \section{Problem \arabic{homeworkProblemCounter}}
+    \setcounter{partCounter}{1}
+    \enterProblemHeader{homeworkProblemCounter}
+}{
+    \exitProblemHeader{homeworkProblemCounter}
+}
+
+%
+% Homework Details
+%   - Title
+%   - Due date
+%   - Class
+%   - Section/Time
+%   - Instructor
+%   - Author
+%
+
+\newcommand{\hmwkTitle}{Homework 1}
+\newcommand{\hmwkDueDate}{April 12, 2016}
+\newcommand{\hmwkClass}{CSE 547}
+\newcommand{\hmwkAuthorName}{Brian de Silva}
+
+%
+% Title Page
+%
+
+\title{
+    \vspace{2in}
+    \textmd{\textbf{\hmwkClass:\ \hmwkTitle}}\\
+    \normalsize\vspace{0.1in}\small{Due\ on\ \hmwkDueDate\ }\\
+    \vspace{3in}
+}
+
+\author{\textbf{\hmwkAuthorName}}
+\date{}
+
+\renewcommand{\part}[1]{\textbf{\large Part \Alph{partCounter}}\stepcounter{partCounter}\\}
+
+%
+% Various Helper Commands
+%
+
+% Useful for algorithms
+\newcommand{\alg}[1]{\textsc{\bfseries \footnotesize #1}}
+
+% For derivatives
+\newcommand{\deriv}[1]{\frac{\mathrm{d}}{\mathrm{d}x} (#1)}
+
+% For partial derivatives
+\newcommand{\pd}[2]{\frac{\partial}{\partial #1} (#2)}
+\newcommand{\pdd}[2]{\frac{\partial #1}{\partial #2}}
+
+% Integral dx
+\newcommand{\dx}{\mathrm{d}x}
+
+% Alias for the Solution section header
+\newcommand{\solution}{\textbf{\vskip 0.2cm \large Solution:\\}}
+
+% Useful commands
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Var}{\mathrm{Var}}
+\newcommand{\Cov}{\mathrm{Cov}}
+\newcommand{\Bias}{\mathrm{Bias}}
+\newcommand{\bbm}{\begin{bmatrix}}
+\newcommand{\ebm}{\end{bmatrix}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\y}{\hat \bm{y}}
+\newcommand{\yi}{\hat \bm{y_i}}
+\newcommand{\X}{\bm{X}}
+\newcommand{\w}{\bm{w}}
+\newcommand{\T}{\mathcal{T}}
+
+
+\begin{document}
+
+\maketitle
+
+\pagebreak
+
+\section*{Collaborators} Weston Barger and Emily Dinan.
+
+% Problem 1
+\begin{homeworkProblem}
+    ({\scriptsize Source: KM Exercise 8.6}) {\bf Elementary properties of $l_{2}$ regularized logistic regression}\\
+    Consider minimizing
+
+    \begin{flushleft}
+    $\hspace{25bp}J(\mathbf{w})=-l(\mathbf{\mathbf{w}},\mathcal{D}_{\textrm{train}})+\lambda\left\Vert \mathbf{w}\right\Vert _{2}^{2}$
+    \par\end{flushleft}
+    where
+
+    \begin{flushleft}
+    $\hspace{25bp}l(\mathbf{\mathbf{w}},\mathcal{D})=\sum_{j}\textrm{ln}\textbf{P}(y^{j}|\mathbf{x}^{j},\mathbf{w})$
+    \par\end{flushleft}
+    is the log-likelihood on data set $\mathcal{D}$, for $y^{j}\in\{-1,+1\}$.
+    Determine whether the following statements are true or false.  Briefly explain.
+
+    \begin{itemize}
+        \item[{(a)}] With $\lambda>0$ and the features $x_{k}^{j}$
+    linearly separable, $J(\mathbf{w})$ has multiple locally optimal solutions.
+
+        \item[{(b)}] Let $\hat{\mathbf{w}}$= arg min$_{\mathbf{w}}J(\mathbf{w})$ be
+    a global optimum. $\hat{\mathbf{w}}$ is typically sparse (has many zero entries).
+
+        \item[{(c)}] If the training data is linearly separable, then some weights $w_{j}$
+    might become infinite if $\lambda=$0.
+        
+        \item[{(d)}] $l(\mathbf{\mathbf{\hat{w}}},\mathcal{D}_{\textrm{train}})$ always increases
+    as we increase $\lambda$.
+
+        \item[{(e)}] $l(\mathbf{\mathbf{\hat{w}}},\mathcal{D}_{\textrm{test}})$ always increases
+    as we increase $\lambda$.
+    \end{itemize}
+
+    \textbf{Now answer the following questions:}
+    \begin{itemize}
+      \item[{(f)}] Can the decision boundary in unregularized logistic regression
+      change if we add an additional variable that is a duplicate of one of the
+      variables already in the model?
+      Give an intuitive answer (Hint: think about the model assumptions).
+      \item[{(g)}] Let us say our $\mathcal{D}_{\textrm{train}}$ has $n$ examples,
+      and only one feature $x_1$. Now we create a dataset
+      $\mathcal{D}_{\textrm{mod}}$, with $n$ examples and two features $x_1$ and
+      $x_2$ where each example in $\mathcal{D}_{\textrm{mod}}$ contains the feature
+      on $\mathcal{D}_{\textrm{train}}$ twice, and the same label. We learn a
+      logistic regression from $\mathcal{D}_{\textrm{train}}$, which will give us
+      two parameters: $w_0$ and $w_1$. We also learn a logistic regression from
+      $\mathcal{D}_{\textrm{mod}}$, which will give us three paramters: $w_0'$,
+      $w_1'$, $w_2'$.
+
+      \begin{itemize}
+      \item[i.] Write down the \textbf{unregularized} log-likelihood we want to maximize for each of the
+      two logistic regressions.
+      \item[ii.] Given the log-likelihood functions, what is the relationship
+      between $(w_0, w_1)$ and $(w_0', w_1', w_2')$? Using this relationship, answer
+      question (e) again here, more formally.
+      \item[iii.] Would your answer for the previous question change if we were
+      using $l_2$ regularization?. Argue why or why not (Remember we don't regularize $w_0$).
+      \end{itemize}
+    \end{itemize}
+
+    \solution
+    \begin{enumerate}[(a)]
+        \item False. With $\lambda>0$ and $x_k^j$ linearly separable, both $-l(\bm{w},\mathcal{D})$ and $\lambda\|\bm{w}\|_2^2$ are convex. In fact $\lambda\|\bm{w}\|_2^2$ is strictly convex. Hence $J(\bm{w})$ is convex as well since the sum of convex functions is convex.Since $J(\bm{w})$ is convex. It is easy to show that the strict convexity of $\lambda\|\bm{w}\|_2^2$ implies that $J(\bm{w})$ is also strictly convex. Therefore $J(\bm{w})$ has at most one minimum.
+        \item False.
+        \item True.
+        \item False.
+        \item False.
+    \end{enumerate}
+
+\end{homeworkProblem}
+
+
+
+
+
+
+\end{document}
+
