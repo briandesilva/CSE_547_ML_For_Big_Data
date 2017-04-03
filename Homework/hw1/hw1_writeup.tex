@@ -318,12 +318,54 @@
     \begin{equation*}
     L(w_1, ..., w_{R-1}) = \sum_{j = 1}^{N}ln(P(y^j| x^j,w)) - \frac{\lambda}{2}\sum_{l=1}^{R-1}\norm{w_l}_2^2
     \end{equation*}
-    Compute the gradient of this new $L$ with respect to each $w_k$
+    Compute the gradient of this new $L$ with respect to each $w_k$.
   \end{enumerate}
 
   \solution
   \begin{enumerate}[(a)]
-    \item 
+    \item The parameters we need to estimate are the entries of each of the vectors $w_1,w_2,\dots,w_{R-1}$. Since each of these has $n$ entries, we must estimate $(R-1)n$ parameters total.
+    \item For this problem we use the convention introduced above that $w_R=[0,0,\dots,0]$.
+    \begin{align*}
+      L(w_1,\dots,w_{R-1})&=\sum_{j=1}^N\log(\bm{P}(y^j|x^j,w))\\
+      &= \sum_{j=1}^N\log\left(\frac{exp(\langle w_{y^j}, x^j \rangle)}{1 + \sum_{i=1}^{R-1}exp(\langle w_{i}, x^j \rangle)} \right)\\
+      &= \sum_{j=1}^N\left(\log(exp(\langle w_{y^j},x^j\rangle))-\log\left(1+\sum^{R-1}_{i=1}exp(\langle w_i,x^j\rangle)\right)\right)\\
+      &=\sum^N_{j=1}\left( \langle w_{y^j},x^j\rangle -\log\left(\sum^{R}_{i=1}exp(\langle i_j,x^j\rangle) \right)\right).
+    \end{align*}
+    \item Let $\bm{1}$ denote the identity function defined as
+    \[
+      \bm{1}(y=k)=\begin{cases}
+        1 &\text{if~}y=k\\
+        0 & \text{if~}y\neq k.
+      \end{cases}
+    \]
+    Suppose $k\neq R$. Then the gradient of one log likelihood term with respect to $w_k$ is
+    \begin{align*}
+      \frac{\partial }{\partial w_k}\log(\bm{P}(y^j|x^j,w)) &= \left(\frac{\partial }{\partial w_k}\langle w_{y^j},x^j\rangle - \frac{\partial }{\partial w_k}\log\left(\sum^{R}_{i=1}exp(\langle w_i,x^j\rangle) \right)\right)\\
+      &= \bm{1}(y^j=k)x^j - (1-\bm{1}(y^j=R))\frac{x^jexp(\langle w_k,x^j\rangle)}{\sum^R_{i=1}\langle w_i,x^j\rangle} \\
+      &= x^j\left(\bm{1}(y^j=k) -(1-\bm{1}(y^j=R))\frac{exp(\langle w_k,x^j\rangle)}{\sum^R_{i=1}\langle w_i,x^j\rangle}  \right).
+    \end{align*}
+    We can also write this gradient as
+    \[
+       \frac{\partial }{\partial w_k}\log(\bm{P}(y^j|x^j,w)) = \begin{cases}
+         x^j(\bm{1}(y^j=k) -\bm{P}(y^j=k|x^j,w))\\
+         % \frac{exp(\langle w_k,x^j\rangle)}{\sum^R_i=1}\langle w_i,x^j\rangle}  \right) & \text{if~} y^j\neq R\\
+         x^j\bm{1}(y^j=R) & \text{if~} y^j=R
+       \end{cases}.
+    \]
+    If $k=R$ then the gradient is the zero vector since $w_R$ is a pseudo parameter vector which is fixed. Now we can easily write down the gradient of $L(w)$ with respect to $w_k$ (for $k\neq R$):
+    \begin{align*}
+      \frac{\partial }{\partial w_k}L(w_1,w_2,\dots,w_{k-1}) &= \frac{\partial }{\partial w_k}\sum_{j=1}^N\log(\bm{P}(y^j|x^j,w))\\
+      &=\sum_{j=1}^N \frac{\partial }{\partial w_k} \log(\bm{P}(y^j|x^j,w))\\
+      &=\sum_{j=1}^N x^j\left[\bm{1}(y^j=k) -(1-\bm{1}(y^j=R))\bm{P}(y^j|x^j,w)  \right].
+    \end{align*}
+    \item This new objective function is the same as the previous one except it includes an $L^2$ regularization term. Taking the gradient of this term with respect to $w_k$ (for $k\neq R$) gives
+    \[
+      -\frac{\partial }{\partial w_k}\frac\lambda2\sum^{R-1}_{l=1}\norm{w_l}_2^2 = -\lambda w_k.
+    \]
+    Hence the gradient of $L$ with respect to $w_k$ is
+    \[
+      \frac{\partial }{\partial w_k}L(w_1,w_2,\dots,w_{k-1}) = x^j\left[\bm{1}(y^j=k) -(1-\bm{1}(y^j=R))\bm{P}(y^j|x^j,w)  \right] - \lambda w_k.
+    \]
   \end{enumerate}
 \end{homeworkProblem}
 
