@@ -146,11 +146,11 @@
 \newcommand{\bbm}{\begin{bmatrix}}
 \newcommand{\ebm}{\end{bmatrix}}
 \newcommand{\R}{\mathbb{R}}
-\newcommand{\y}{\hat \bm{y}}
-\newcommand{\yi}{\hat \bm{y_i}}
-\newcommand{\X}{\bm{X}}
+\newcommand{\x}{\bm{x}}
 \newcommand{\w}{\bm{w}}
+\newcommand{\z}{\bm{z}}
 \newcommand{\T}{\mathcal{T}}
+\newcommand{\norm}[1]{\left\| #1\right\|}
 
 
 \begin{document}
@@ -161,7 +161,7 @@
 
 \section*{Collaborators} Weston Barger and Emily Dinan.
 
-% Problem 1
+% Problem 1.1
 \begin{homeworkProblem}
     ({\scriptsize Source: KM Exercise 8.6}) {\bf Elementary properties of $l_{2}$ regularized logistic regression}\\
     Consider minimizing
@@ -223,13 +223,108 @@
 
     \solution
     \begin{enumerate}[(a)]
-        \item False. With $\lambda>0$ and $x_k^j$ linearly separable, both $-l(\bm{w},\mathcal{D})$ and $\lambda\|\bm{w}\|_2^2$ are convex. In fact $\lambda\|\bm{w}\|_2^2$ is strictly convex. Hence $J(\bm{w})$ is convex as well since the sum of convex functions is convex.Since $J(\bm{w})$ is convex. It is easy to show that the strict convexity of $\lambda\|\bm{w}\|_2^2$ implies that $J(\bm{w})$ is also strictly convex. Therefore $J(\bm{w})$ has at most one minimum.
-        \item False.
-        \item True.
-        \item False.
-        \item False.
+        \item False. With $\lambda>0$ and $x_k^j$ linearly separable, both $-l(\bm{w},\mathcal{D})$ and $\lambda\|\bm{w}\|_2^2$ are convex. In fact $\lambda\|\bm{w}\|_2^2$ is strictly convex. Hence $J(\bm{w})$ is convex as well since the sum of convex functions is convex. Since $J(\bm{w})$ is convex. It is easy to show that the strict convexity of $\lambda\|\bm{w}\|_2^2$ implies that $J(\bm{w})$ is also strictly convex. Therefore $J(\bm{w})$ has at most one minimum.
+        \item False. Notice that without the 2-norm penalty term it is very unlikely that $\hat \w$ would be sparse as any weight $\hat w_i$ being zero means that the $i$th feature can be safely ignored. Only in very special instances will many such features exist. For the 2-norm regularization term $\lambda \|\w\|_2^2=\lambda\sum_i w_i^2$, weights $w_i$ that are small, but nonzero do not make much of a contribution since they become smaller when squared. In order for the model to prioritize shrinking the size of these weights in optimizing $J(\w)$, $l(\w,\mathcal{D}_{\text{train}})$ must be $\mathcal{O}(\lambda w_i^2)$ as well. However, $l(\w,\mathcal{D})$ is bounded above by 0 and in order for it to actually approach 0, $\|\w\|$ must become large (since we assume $\bm{P}(y|\x,\w))$ is a sigmoid function which never reaches 0 or 1, but can approach them for large $\|\w\|$). But if $\|\w\|$ is large, then there is some $k$ such that $|w_k|$ is large, making $J(\w)$ large. Thus it is very unlikely that the global minimizer for $J(\w)$ has many zero entries.
+        \item True. Assume for simplicity that we are not using an offset $w_0$. If the training data is linearly separable then we can find some weight vector $\w$ such that level set $\{\z|\w^T\z=0\}$ separates the points $\x^j$ corresponding to $y^j=-1$ from the points $\x^j$ corresponding to $y^j=1$. Note that this also entails that $\w^T\x^j\neq0$ for each $j$. Then we can make the following observations:
+        \begin{enumerate}
+          \item $\alpha \w$ also separates the two sets of points for any $\alpha\neq 0$ since $\w^T\z=0$ if and only if $(\alpha\w)^T\z=\alpha(\w^T\z)=0$.
+          \item If $\alpha>1$ then $l(\alpha\w,\mathcal{D})>l(\w,\mathcal{D})$. This follows from our definition of $\bm{P}(y^j,\x^j,\w)$:
+          \begin{align*}
+            \bm{P}(y^j=1|\x^j,\w)&=\frac{1}{1+\text{exp}(-\w^T\x)}\\
+            \bm{P}(y^j=-1|\x^j,\w)&=\frac{1}{1+\text{exp}(\w^T\x)}.
+          \end{align*}
+          This definition implies that
+          \[
+            l(\alpha\w,\mathcal{D})=-\sum_j\log(1+\text{exp}(-\alpha  y^j\w^T\x)).
+          \]
+          We can see from here that $l(\alpha\w,\mathcal{D})>l(\w,\mathcal{D})$ if $\alpha>1$.
+        \end{enumerate}
+          From these observations we see that to minimize $-l(\alpha\w,\mathcal{D}_{\text{train}})$ (hence $J(\w)$) we should let $\alpha\to\infty$. But if any entry of $\w$ is nonzero then this optimal solution will have entries that go to infinity as $\alpha\to\infty$.
+        \item False. Minimizing $J(\w)$ is a tradeoff between simultaneously maximizing $l(\w,\mathcal{D}_{\text{train}})$ and minimizing $\lambda\|\w\|_2^2$. As we saw before, if $\lambda=0$ (and the data are linearly separable) then to get $l(\w,\mathcal{D}_{\text{train}})$ to approach its maxima of 0, we often need $\hat \w$ to have infinitely large entries. As we increase $\lambda$ from 0 we are increasingly restricted in how large the entries of $\hat \w$ can be (clearly the minimum is not attained by a $\hat \w$ with infinitely large entries). This imposes increasingly severe restrictions on how well we are able to maximize $l(\w,\mathcal{D}_{\text{train}})$, meaning that $l(\hat\w,\mathcal{D}_{\text{train}})$ will often {\it decrease} as $\lambda$ is increased.
+        \item False. Consider the case where $\mathcal{D}_{\text{test}}=\mathcal{D}_{\text{train}}$. Then by the same reasoning as in the previous part, $l(\hat \w,\mathcal{D}_{\text{test}})$ does not necessarily increase as we increase $\lambda$.
+
+        \item Yes. In using logistic regression we assume that the variables are independent. Two variables that are duplicates of one another are clearly dependent, violating this assumption.
+
+        \item 
+        \begin{itemize}
+          \item[i.] For the first logistic regression the log-likelihood we want to maximize is
+          \[
+            l(\w,\mathcal{D}_{\text{train}})=-\sum^n_{j=1}\log(1+\text{exp}(-y^j(w_0+w_1x_1^j))).
+          \]
+          For the second it is
+          \[
+            l(\w,\mathcal{D}_{\text{train}})=-\sum^n_{j=1}\log(1+\text{exp}(-y^j(w_0'+w_1'x_1^j+w_2'x_2^j))) = -\sum^n_{j=1}\log(1+\text{exp}(-y^j(w_0'+(w_1'+w_2')x_1^j)))
+          \]
+          as $x_1^j=x_2^j$.
+          \item[ii.] We would like to choose the weights that maximize these two log-likelihoods. The expression for the second log-likelihood function is identical to the first, except $w_1$ has been replaced with $w_1'+w_2'$. It follows that if we find weights that maximize the first log-likelihood, $\hat w_0$ and $\hat w_1$, then we can maximize the second by setting $w_0'=\hat w_0$ and $w_1'+w_2'=\hat w_1$.
+
+          In a more general setting where $n$ weights $w_1,w_2,\dots,w_n$ are to be learned (assume for simplicity that we do not use an offset, $w_0$), our decision boundary is the set $\{\z|\w^T\z=0\}$, i.e. the components of any vector on the decision boundary satisfy $z_1w_1+z_2w_2+\dots+z_nw_n=0$. If we introduce an additional variable that is a duplicate of another, say the first, then the new inner product we compute to decide how to classify points is 
+          \[
+            \tilde w_1 z_1+\tilde w_2z_2+\dots+\tilde w_nz_n+\tilde w_{n+1}z_{n+1}=(\tilde w_1+\tilde w_{n+1}) z_1+\tilde w_2z_2+\dots+\tilde w_nz_n.
+          \]
+          In order for the decision boundary to stay the same we would need $\tilde w_1+\tilde w_{n+1}=w_1$, showing that***
+          \item[iii.] If we use $L^2$ regularization then in the first case we would need to minimize
+          \[
+            J(\w)=-l(\w,D_{\text{train}})+\lambda\|\w\|_2^2=l(\w,D_{\text{train}})+\lambda w_1^2.
+          \]
+          Suppose this is minimized by $\w=(w_0,w_1)$. Then for the second case we would need to minimize
+          \[
+            J(\w)=-l(\w,D_{\text{train}})+\lambda\|\w\|_2^2=l(\w,D_{\text{train}})+\lambda((w_1')^2+(w_2')^2).
+          \]
+          In the previous part we found that we could take $w_0'=w_0$ and $w_1'+w_2'=w_1$ to find the minimizer. This will make the value of the two log-likelihoods the same, but the $L^2$ terms will not match, as 
+          \[
+            w_1^2=(w_1'+w_2')^2=(w_1')^2+2w_1'w_2'+(w_2')^2\neq (w_1')^2+(w_2')^2.
+          \]
+          Hence the relation from the previous part will not necessarily give the minimizer for the second logistic regression model.
+        \end{itemize}
     \end{enumerate}
 
+\end{homeworkProblem}
+
+
+% Problem 1.2
+\begin{homeworkProblem}
+  On Slide 7 of the first lecture, we presented multi-class logistic regression,
+  where $Y \in \{y_1, ..., y_R\}$. Here, we have a simplified version, with no
+  $w_0$. When $k < R$, the posterior probability is given by:
+  \begin{equation*}
+  P(Y = y_k | X) = \frac{exp(\langle w_{k}, X \rangle)}{1 + \sum_{j =
+  1}^{R-1}exp(\langle w_{j}, X \rangle)}
+  \end{equation*}
+  For $k = R$, the posterior is:
+  \begin{equation*}
+  P(Y = y_k | X) = \frac{1}{1 + \sum_{j = 1}^{R-1}exp(\langle w_j , X \rangle)}
+  \end{equation*}
+  Where $\langle w_j, X \rangle = \sum_{i=1}^{n}w_{ji}X_i$ (i.e. the dot product).
+  We can replace the two equations above by a single equation, to simplify
+  notation. For such, we introduce a fixed, pseudo parameter vector $w_R =
+  [0,0,0,...,0]$. Now, for any label $y_k$, we write:
+  \begin{equation*}
+  P(Y = y_k | X) = \frac{exp(\langle w_{k}, X \rangle)}{1 + \sum_{j =
+  1}^{R-1}exp(\langle w_{j}, X \rangle)}
+  \end{equation*}
+  \begin{enumerate}[(a)]
+    \item[(a)] How many parameters do we need to estimate? What are these parameters?
+    \item[(b)] Given $N$ training samples $\{(x^1, y^1), (x^2, y^2), ..., (x^N,y^N)\}$,
+    write down explicitly the log-likelihood function and simplify it as much as you
+    can:
+    \begin{equation*}
+    L(w_1, ..., w_{R-1}) = \sum_{j = 1}^{N}ln(P(y^j| x^j,w))
+    \end{equation*}
+    \item[(c)] Compute the gradient of $L$ with respect to each $w_k$ and simplify
+    it.
+    \item[(d)] Now add the regularization term $\dfrac{\lambda}{2}$ and define a new
+    objective function:
+    \begin{equation*}
+    L(w_1, ..., w_{R-1}) = \sum_{j = 1}^{N}ln(P(y^j| x^j,w)) - \frac{\lambda}{2}\sum_{l=1}^{R-1}\norm{w_l}_2^2
+    \end{equation*}
+    Compute the gradient of this new $L$ with respect to each $w_k$
+  \end{enumerate}
+
+  \solution
+  \begin{enumerate}[(a)]
+    \item 
+  \end{enumerate}
 \end{homeworkProblem}
 
 
