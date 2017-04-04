@@ -544,6 +544,130 @@
 
 \end{homeworkProblem}
 
+% Problem 1.4
+\begin{homeworkProblem}
+
+  {\bf 1. Warm up}\\
+  We begin by simply assessing various attributes of the dataset, primarily to ensure that it is correctly accessed and parsed.
+  \\
+  %If you are using the starter code, please complete the functions in``analysis/BasicAnalysis.py''.
+  \\ In the starter code, you will find ``analysis/DummyLoader.py'' as sample code for initializing the dataset, iterating over each row, parsing the text, and printing out results.  \textbf{NOTE}: You will have to change the location of the dataset in \texttt{main} to reflect where you put the data on your system.
+
+  \begin{enumerate}[(a)]
+    \item Report the average CTR for the training data (Number of clicks / Number of examples).
+    \item How many unique tokens are there in the training data? What about the test data? How many tokens appear in both datasets?
+  %  \item How many unique users are there in the training data? What about the test data? How many users appear in both datasets?
+    \item How many unique users are there in each age group in the training data? What about the test data?
+  \end{enumerate}
+
+  \solution
+  \begin{enumerate}[(a)]
+    \item I found the average CTR for the training data to be 0.033655.
+    \item I found that the number of unique tokens in the training set was 141063, the number in the testing set was 109459, and the number in both sets was 79261.
+    \item I found that the age groups of the training and testing sets had the following numbers of unique users:
+    \begin{centering}
+      \begin{tabular}{c|c|c}
+        {\bf Age group}& {\bf Unique users (training)} & {\bf Unique users (testing)}\\ \hline
+        0 &8826   &2021   \\
+        1 &79668  &48783  \\
+        2 &162725 &113818 \\
+        3 &307482 &178416 \\
+        4 &213292 &117326 \\
+        5 &146605 &79635  \\
+        6 &63834  &34908  \\
+      \end{tabular}
+    \end{centering}
+  \end{enumerate}
+
+  \vskip 1cm
+  {\bf 2. Stochastic Gradient Descent}
+  \\
+  \\Recall that stochastic gradient descent (SGD) performs a gradient descent using a noisy estimate of the full gradient based on just the current example.
+
+  \begin{enumerate}[(a)]
+    \item Write down the equation for the weight update step. That is, how to update weights $w^t$ using the data point $(x^t, y^t)$, where $x^t \equiv [x_1^t, x_2^t, \dots, x_d^t]$ is the feature vector for example $t$, and $y^t \in \{0, 1\}$ is the label. 
+
+    \item  For stepsizes $\eta = \{0.001, 0.01, 0.05\}$ and without regularization, implement SGD and train the weights by making one pass over the dataset. \textbf{Use only one pass over the data on all subsequent questions as well.}  For each step size:
+      \begin{itemize}
+        \item  Plot the average loss $\overline{L}$ as a function of the number of steps $T$, where
+          \[
+          \overline{L}(T) = \frac{1}{T} \sum_{t=1}^T (\hat{y}^t-y^t)^2
+          \]
+          where $\hat{y^t}$ is the predicted label of example $x^t$ using the weights $w^{t-1}$.
+          Record the average loss every 100 steps, e.g. $[100, 200, 300, \dots]$.
+
+        \item Report the $l_2$ norm of the weights at the end of the pass.
+        \item Use the weights to predict the CTRs for the test data. Recall that ``test\_label.txt'' contains the labels for the test data.
+               Report the RMSE (root mean square error) of your predicted CTR.   
+               Also report the RMSE of the baseline prediction you got from the Warm Up.  (Do not expect a huge improvement since the label distribution is biased. Elgoog still makes a huge profit even with a $0.1\%$ improvement in accuracy.)
+               \\
+              %\emph{Hint: you can use the given Util/EvalUtil.py to compute RMSE}.
+              \emph{Hint: you can use the given Util/EvalUtil.py to compute RMSE}.
+      \end{itemize}
+      \item For $\eta = 0.01$, report the weights for the following features: intercept, ``Position'', ``Depth'', ``Gender'', and ``Age''. Provide an interpretation of the effect of each feature on the probability of a click based on these inferred weights.
+  \end{enumerate}
+
+  \solution
+
+  \begin{enumerate}[(a)]
+    \item Since $y^t\in\{0,1\}$, the log-likelihood for a single point $(x^t,y^t)$ is
+    \begin{align*}
+      l(\w) &= y^t \log(\bm{P}(y^t=1|x^t,\w)) + (1-y^t)\log(\bm{P}((y^t=0|x^t,\w)))\\
+      &= y^t \log\left(\frac{exp(w_0 + \langle \w,x^t\rangle)}{1+exp(w_0 + \langle \w,x^t\rangle)}\right) + (1-y^t)\log\left(\frac{1}{1+exp(w_0 + \langle \w,x^t\rangle)}\right)\\
+      &=y^t(w_0 + \langle \w,x^t\rangle) - \log(1+exp(w_0 + \langle \w,x^t\rangle)).
+    \end{align*}
+    The gradient of this log-likelihood with respect to $\w$ (ignoring $w_0$ for the moment) is then
+    \begin{align*}
+      \frac{\partial l}{\partial \w}&=x^ty^t - \frac{x^t exp(w_0 + \langle \w,x^t)}{1+exp(w_0 + \langle \w,x^t\rangle)} \\
+      &= x^t\left(y^t - \bm{P}(y^t=1|x^t,\w) \right).
+    \end{align*}
+    Hence the SGD update using one data point $(x^t,y^t)$ is
+    \[
+      \w^{t+1} = \w^t - \eta x^t\left(y^t - \bm{P}(y^t=1|x^t,\w) \right)
+    \]
+    For $w_0$ the SGD update changes slightly as there are no $w_0x^t$ terms:
+    \[
+      w_0^{t+1} = w_0^t - \eta \left(y^t - \bm{P}(y^t=1|x^t,\w) \right).
+    \]
+  \end{enumerate}
+  
+  {\bf 3. Regularization}
+  \begin{enumerate}[(a)]
+    \item Implement the regularization, and train the weights again using stepsize
+      $\eta = 0.05$ with $\lambda$ ranging from $0$ to $0.014$ spaced by $0.002$,
+      e.g. $[0, 0.002, 0.004, \ldots, 0.014]$.
+      \begin{enumerate}[i.]
+        \item Plot the $l_2$ norm of the weights as a function of $\lambda$.
+        \item Is there a consistent trend in the $l_2$ norm as $\lambda$ increases? Why does this make sense?
+        \item As we increase $\lambda \rightarrow \infty$, what will the $l_2$
+          norm converge to?
+      \end{enumerate}
+
+    \item Predict the CTR for the test data and evaluate the RMSE.
+      Plot the RMSE as a function as $\lambda$.
+  \end{enumerate}
+
+  {\bf 4. Hashing Kernel}
+  \\
+  \\The ``Weinberger, Kilian, et al.'' paper introduces an unbiased hash kernel $\phi: \mathcal{X} \rightarrow \mathcal{F}$.  The original feature space $\mathcal{X}$ is transformed into a space $\mathcal{F}$ with lower dimension through two hash functions: $h: \mathcal{I} \rightarrow \{0, \dots, m-1\}$, and $\xi: \mathcal{I} \rightarrow \{+1, -1\}$, where $\mathcal{I}$ indexes the original feature space $\mathcal{X}$. In this problem, we only ask you to hash the text features, keeping the rest of the features as before. Therefore, $\mathcal{I}$ will be the space of all token ids. 
+  \\
+  \\The new feature vector (for the text features) $\phi(x)$ will be an $m$-dimensional array, where the $\phi(x)_i = \sum_{j : h(j) = i} \xi(j) X_j$. Now, we can run the same SGD algorithm in the hashed feature space. The sparse updating and lazy regularization tricks still apply.
+  \\
+  % previously, m = \{97, 12289, 1572869\} (and m=12289 for personalization)
+  \\ Train the weights in the hashed feature space with $m = \{101, 12277, 1573549\}$, $\lambda = 0.001$ and stepsize $\eta = 0.01$. Report the RMSE of the predicted CTRs for all 3 cases. 
+  
+
+  {\bf 5. Extra Credit: Personalization}
+  \\
+  \\If you have read and understood the ``Weinberger, Kilian, et al.'' paper in its entirety, you can implement a personalized version of CTR prediction.  It's just a few lines of code to change: Instead of hashing each feature once, you hash it again with the userid. The rest remains the same. 
+  \\
+  \\Implement the personalized logistic regression with hashing. Train the weights using $\eta = 0.01$, $m = 12277$, and $\lambda = 0.001$.
+  \begin{enumerate}[(a)]
+    \item Report the RMSE on the test data (including all users).
+    \item Report the RMSE just based on the subset of users who appear both in the test and training data.
+  \end{enumerate}
+  
+\end{homeworkProblem}
 
 
 \end{document}
