@@ -159,7 +159,7 @@
 
 \pagebreak
 
-\section*{Collaborators} Weston Barger and Emily Dinan.
+\section*{Collaborators} Weston Barger and Emily Dinan on problems 1.1, 1.2, and 1.4.
 
 % Problem 1.1
 \begin{homeworkProblem}
@@ -215,7 +215,7 @@
       two logistic regressions.
       \item[ii.] Given the log-likelihood functions, what is the relationship
       between $(w_0, w_1)$ and $(w_0', w_1', w_2')$? Using this relationship, answer
-      question (e) again here, more formally.
+      question (f) again here, more formally.
       \item[iii.] Would your answer for the previous question change if we were
       using $l_2$ regularization?. Argue why or why not (Remember we don't regularize $w_0$).
       \end{itemize}
@@ -230,12 +230,12 @@
           \item $\alpha \w$ also separates the two sets of points for any $\alpha\neq 0$ since $\w^T\z=0$ if and only if $(\alpha\w)^T\z=\alpha(\w^T\z)=0$.
           \item If $\alpha>1$ then $l(\alpha\w,\mathcal{D})>l(\w,\mathcal{D})$. This follows from our definition of $\bm{P}(y^j,\x^j,\w)$:
           \begin{align*}
-            \bm{P}(y^j=1|\x^j,\w)&=\frac{1}{1+\text{exp}(-\w^T\x)}\\
-            \bm{P}(y^j=-1|\x^j,\w)&=\frac{1}{1+\text{exp}(\w^T\x)}.
+            \bm{P}(y^j=1|\x^j,\w)&=\frac{1}{1+\exp(-\w^T\x)}\\
+            \bm{P}(y^j=-1|\x^j,\w)&=\frac{1}{1+\exp(\w^T\x)}.
           \end{align*}
           This definition implies that
           \[
-            l(\alpha\w,\mathcal{D})=-\sum_j\log(1+\text{exp}(-\alpha  y^j\w^T\x)).
+            l(\alpha\w,\mathcal{D})=-\sum_j\log(1+\exp(-\alpha  y^j\w^T\x)).
           \]
           We can see from here that $l(\alpha\w,\mathcal{D})>l(\w,\mathcal{D})$ if $\alpha>1$.
         \end{enumerate}
@@ -243,26 +243,39 @@
         \item False. Minimizing $J(\w)$ is a tradeoff between simultaneously maximizing $l(\w,\mathcal{D}_{\text{train}})$ and minimizing $\lambda\|\w\|_2^2$. As we saw before, if $\lambda=0$ (and the data are linearly separable) then to get $l(\w,\mathcal{D}_{\text{train}})$ to approach its maxima of 0, we often need $\hat \w$ to have infinitely large entries. As we increase $\lambda$ from 0 we are increasingly restricted in how large the entries of $\hat \w$ can be (clearly the minimum is not attained by a $\hat \w$ with infinitely large entries). This imposes increasingly severe restrictions on how well we are able to maximize $l(\w,\mathcal{D}_{\text{train}})$, meaning that $l(\hat\w,\mathcal{D}_{\text{train}})$ will often {\it decrease} as $\lambda$ is increased.
         \item False. Consider the case where $\mathcal{D}_{\text{test}}=\mathcal{D}_{\text{train}}$. Then by the same reasoning as in the previous part, $l(\hat \w,\mathcal{D}_{\text{test}})$ does not necessarily increase as we increase $\lambda$.
 
-        \item Yes. In using logistic regression we assume that the variables are independent. Two variables that are duplicates of one another are clearly dependent, violating this assumption.
+        \item No. If the additional variable is simply a copy of an existing variable then the model is not actually afforded any extra flexibility in separating the points.
+        % Yes. In using logistic regression we assume that the variables are independent. Two variables that are duplicates of one another are clearly dependent, violating this assumption.
 
         \item 
         \begin{itemize}
           \item[i.] For the first logistic regression the log-likelihood we want to maximize is
           \[
-            l(\w,\mathcal{D}_{\text{train}})=-\sum^n_{j=1}\log(1+\text{exp}(-y^j(w_0+w_1x_1^j))).
+            l(\w,\mathcal{D}_{\text{train}})=-\sum^n_{j=1}\log(1+\exp(-y^j(w_0+w_1x_1^j))).
           \]
           For the second it is
           \[
-            l(\w,\mathcal{D}_{\text{train}})=-\sum^n_{j=1}\log(1+\text{exp}(-y^j(w_0'+w_1'x_1^j+w_2'x_2^j))) = -\sum^n_{j=1}\log(1+\text{exp}(-y^j(w_0'+(w_1'+w_2')x_1^j)))
+            l(\w,\mathcal{D}_{\text{train}})=-\sum^n_{j=1}\log(1+\exp(-y^j(w_0'+w_1'x_1^j+w_2'x_2^j))) = -\sum^n_{j=1}\log(1+\exp(-y^j(w_0'+(w_1'+w_2')x_1^j)))
           \]
           as $x_1^j=x_2^j$.
           \item[ii.] We would like to choose the weights that maximize these two log-likelihoods. The expression for the second log-likelihood function is identical to the first, except $w_1$ has been replaced with $w_1'+w_2'$. It follows that if we find weights that maximize the first log-likelihood, $\hat w_0$ and $\hat w_1$, then we can maximize the second by setting $w_0'=\hat w_0$ and $w_1'+w_2'=\hat w_1$.
 
-          In a more general setting where $n$ weights $w_1,w_2,\dots,w_n$ are to be learned (assume for simplicity that we do not use an offset, $w_0$), our decision boundary is the set $\{\z|\w^T\z=0\}$, i.e. the components of any vector on the decision boundary satisfy $z_1w_1+z_2w_2+\dots+z_nw_n=0$. If we introduce an additional variable that is a duplicate of another, say the first, then the new inner product we compute to decide how to classify points is 
+          In a more general setting the $d+1$ weights $w_0,w_1,w_2,\dots,w_d$ are to be learned by maximizing
           \[
-            \tilde w_1 z_1+\tilde w_2z_2+\dots+\tilde w_nz_n+\tilde w_{n+1}z_{n+1}=(\tilde w_1+\tilde w_{n+1}) z_1+\tilde w_2z_2+\dots+\tilde w_nz_n.
+            l(\w,\mathcal{D}_{\text{train}})=-\sum^n_{j=1}\log(1+\exp(w_0+\w^Tx^j)).
           \]
-          In order for the decision boundary to stay the same we would need $\tilde w_1+\tilde w_{n+1}=w_1$, showing that***
+          Suppose we find such weights which maximize the log-likelihood:, $\hat w_0,\hat \w$. If we consider a similar problem on $\mathcal{D}_{\text{mod}}$ we will attempt to maximize
+          \begin{align*}
+            l(\w,\mathcal{D}_{\text{mod}})&=-\sum^n_{j=1}\log(1+\exp(w_0+w_1x_1^j+\dots+w_dx_d^j+w_{d+1}x_{d+1}^j))\\
+            &=-\sum^n_{j=1}\log(1+\exp(w_0+(w_1+w_{d+1})x_1^j+\dots+w_dx_d^j)).
+          \end{align*}
+          It is clear that the optimal weights for this case are simply $w_j=\hat w_j$ for $j=0,2,3,\dots,d$ and $w_1+w_{d+1} = \hat w_1$. The weight multiplying the first feature has simply been reparameterized by two variables instead of one, but no extra degrees of freedom have actually been added. Since the second model is constrained to pick its weights in such a manner, the decision boundary will not actually change when the extra variable is added (all points will be classified the same way they were before).
+
+          % (assume for simplicity that we do not use an offset, $w_0$), our decision boundary is the set $\{\z|\w^T\z=0\}$, i.e. the components of any vector on the decision boundary satisfy $z_1w_1+z_2w_2+\dots+z_nw_n=0$. If we introduce an additional variable that is a duplicate of another, say the first, then the new inner product we compute to decide how to classify points is 
+          % \[
+          %   \tilde w_1 z_1+\tilde w_2z_2+\dots+\tilde w_nz_n+\tilde w_{n+1}z_{n+1}=(\tilde w_1+\tilde w_{n+1}) z_1+\tilde w_2z_2+\dots+\tilde w_nz_n.
+          % \]
+
+          % In order for the decision boundary to stay the same we would need $\tilde w_1+\tilde w_{n+1}=w_1$, showing that***
           \item[iii.] If we use $L^2$ regularization then in the first case we would need to minimize
           \[
             J(\w)=-l(\w,D_{\text{train}})+\lambda\|\w\|_2^2=l(\w,D_{\text{train}})+\lambda w_1^2.
@@ -288,20 +301,20 @@
   where $Y \in \{y_1, ..., y_R\}$. Here, we have a simplified version, with no
   $w_0$. When $k < R$, the posterior probability is given by:
   \begin{equation*}
-  P(Y = y_k | X) = \frac{exp(\langle w_{k}, X \rangle)}{1 + \sum_{j =
-  1}^{R-1}exp(\langle w_{j}, X \rangle)}
+  P(Y = y_k | X) = \frac{\exp(\langle w_{k}, X \rangle)}{1 + \sum_{j =
+  1}^{R-1}\exp(\langle w_{j}, X \rangle)}
   \end{equation*}
   For $k = R$, the posterior is:
   \begin{equation*}
-  P(Y = y_k | X) = \frac{1}{1 + \sum_{j = 1}^{R-1}exp(\langle w_j , X \rangle)}
+  P(Y = y_k | X) = \frac{1}{1 + \sum_{j = 1}^{R-1}\exp(\langle w_j , X \rangle)}
   \end{equation*}
   Where $\langle w_j, X \rangle = \sum_{i=1}^{n}w_{ji}X_i$ (i.e. the dot product).
   We can replace the two equations above by a single equation, to simplify
   notation. For such, we introduce a fixed, pseudo parameter vector $w_R =
   [0,0,0,...,0]$. Now, for any label $y_k$, we write:
   \begin{equation*}
-  P(Y = y_k | X) = \frac{exp(\langle w_{k}, X \rangle)}{1 + \sum_{j =
-  1}^{R-1}exp(\langle w_{j}, X \rangle)}
+  P(Y = y_k | X) = \frac{\exp(\langle w_{k}, X \rangle)}{1 + \sum_{j =
+  1}^{R-1}\exp(\langle w_{j}, X \rangle)}
   \end{equation*}
   \begin{enumerate}[(a)]
     \item[(a)] How many parameters do we need to estimate? What are these parameters?
@@ -324,12 +337,12 @@
   \solution
   \begin{enumerate}[(a)]
     \item The parameters we need to estimate are the entries of each of the vectors $w_1,w_2,\dots,w_{R-1}$. Since each of these has $n$ entries, we must estimate $(R-1)n$ parameters total.
-    \item For this problem we use the convention introduced above that $w_R=[0,0,\dots,0]$.
+    \item For this problem we use the convention introduced above that $w_R=[0,0,\dots,0]$. Furthermore, let $I(y_k)=k$ so that if $y^j=y_k$ then $I(y^j)=k$. Then
     \begin{align*}
       L(w_1,\dots,w_{R-1})&=\sum_{j=1}^N\log(\bm{P}(y^j|x^j,w))\\
-      &= \sum_{j=1}^N\log\left(\frac{exp(\langle w_{y^j}, x^j \rangle)}{1 + \sum_{i=1}^{R-1}exp(\langle w_{i}, x^j \rangle)} \right)\\
-      &= \sum_{j=1}^N\left(\log(exp(\langle w_{y^j},x^j\rangle))-\log\left(1+\sum^{R-1}_{i=1}exp(\langle w_i,x^j\rangle)\right)\right)\\
-      &=\sum^N_{j=1}\left( \langle w_{y^j},x^j\rangle -\log\left(\sum^{R}_{i=1}exp(\langle i_j,x^j\rangle) \right)\right).
+      &= \sum_{j=1}^N\log\left(\frac{\exp(\langle w_{I(y^j)}, x^j \rangle)}{1 + \sum_{i=1}^{R-1}\exp(\langle w_{i}, x^j \rangle)} \right)\\
+      &= \sum_{j=1}^N\left(\log(\exp(\langle w_{I(y^j)},x^j\rangle))-\log\left(1+\sum^{R-1}_{i=1}\exp(\langle w_i,x^j\rangle)\right)\right)\\
+      &=\sum^N_{j=1}\left( \langle w_{I(y^j)},x^j\rangle -\log\left(\sum^{R}_{i=1}\exp(\langle w_i,x^j\rangle) \right)\right).
     \end{align*}
     \item Let $\bm{1}$ denote the identity function defined as
     \[
@@ -340,15 +353,15 @@
     \]
     Suppose $k\neq R$. Then the gradient of one log likelihood term with respect to $w_k$ is
     \begin{align*}
-      \frac{\partial }{\partial w_k}\log(\bm{P}(y^j|x^j,w)) &= \left(\frac{\partial }{\partial w_k}\langle w_{y^j},x^j\rangle - \frac{\partial }{\partial w_k}\log\left(\sum^{R}_{i=1}exp(\langle w_i,x^j\rangle) \right)\right)\\
-      &= \bm{1}(y^j=k)x^j - (1-\bm{1}(y^j=R))\frac{x^jexp(\langle w_k,x^j\rangle)}{\sum^R_{i=1}\langle w_i,x^j\rangle} \\
-      &= x^j\left(\bm{1}(y^j=k) -(1-\bm{1}(y^j=R))\frac{exp(\langle w_k,x^j\rangle)}{\sum^R_{i=1}\langle w_i,x^j\rangle}  \right).
+      \frac{\partial }{\partial w_k}\log(\bm{P}(y^j|x^j,w)) &= \left(\frac{\partial }{\partial w_k}\langle w_{I(y^j)},x^j\rangle - \frac{\partial }{\partial w_k}\log\left(\sum^{R}_{i=1}\exp(\langle w_i,x^j\rangle) \right)\right)\\
+      &= \bm{1}(y^j=k)x^j - \frac{x^j\exp(\langle w_k,x^j\rangle)}{\sum^R_{i=1}\langle w_i,x^j\rangle} \\
+      &= x^j\left(\bm{1}(y^j=k) -\frac{\exp(\langle w_k,x^j\rangle)}{\sum^R_{i=1}\langle w_i,x^j\rangle}  \right).
     \end{align*}
     We can also write this gradient as
     \[
        \frac{\partial }{\partial w_k}\log(\bm{P}(y^j|x^j,w)) = \begin{cases}
          x^j(\bm{1}(y^j=k) -\bm{P}(y^j=k|x^j,w))\\
-         % \frac{exp(\langle w_k,x^j\rangle)}{\sum^R_i=1}\langle w_i,x^j\rangle}  \right) & \text{if~} y^j\neq R\\
+         % \frac{\exp(\langle w_k,x^j\rangle)}{\sum^R_i=1}\langle w_i,x^j\rangle}  \right) & \text{if~} y^j\neq R\\
          x^j\bm{1}(y^j=R) & \text{if~} y^j=R
        \end{cases}.
     \]
@@ -356,7 +369,7 @@
     \begin{align*}
       \frac{\partial }{\partial w_k}L(w_1,w_2,\dots,w_{k-1}) &= \frac{\partial }{\partial w_k}\sum_{j=1}^N\log(\bm{P}(y^j|x^j,w))\\
       &=\sum_{j=1}^N \frac{\partial }{\partial w_k} \log(\bm{P}(y^j|x^j,w))\\
-      &=\sum_{j=1}^N x^j\left[\bm{1}(y^j=k) -(1-\bm{1}(y^j=R))\bm{P}(y^j|x^j,w)  \right].
+      &=\sum_{j=1}^N x^j\left[\bm{1}(y^j=k) -\bm{P}(y^j|x^j,w)  \right].
     \end{align*}
     \item This new objective function is the same as the previous one except it includes an $L^2$ regularization term. Taking the gradient of this term with respect to $w_k$ (for $k\neq R$) gives
     \[
@@ -364,7 +377,7 @@
     \]
     Hence the gradient of $L$ with respect to $w_k$ is
     \[
-      \frac{\partial }{\partial w_k}L(w_1,w_2,\dots,w_{k-1}) = x^j\left[\bm{1}(y^j=k) -(1-\bm{1}(y^j=R))\bm{P}(y^j|x^j,w)  \right] - \lambda w_k.
+      \frac{\partial }{\partial w_k}L(w_1,w_2,\dots,w_{k-1}) = x^j\left[\bm{1}(y^j=k) -\bm{P}(y^j|x^j,w)  \right] - \lambda w_k.
     \]
   \end{enumerate}
 \end{homeworkProblem}
@@ -613,12 +626,12 @@
     \item Since $y^t\in\{0,1\}$, the log-likelihood for a single point $(x^t,y^t)$ is
     \begin{align*}
       l(\w) &= y^t \log(\bm{P}(y^t=1|x^t,\w)) + (1-y^t)\log(\bm{P}((y^t=0|x^t,\w)))\\
-      &= y^t \log\left(\frac{exp(w_0 + \langle \w,x^t\rangle)}{1+exp(w_0 + \langle \w,x^t\rangle)}\right) + (1-y^t)\log\left(\frac{1}{1+exp(w_0 + \langle \w,x^t\rangle)}\right)\\
-      &=y^t(w_0 + \langle \w,x^t\rangle) - \log(1+exp(w_0 + \langle \w,x^t\rangle)).
+      &= y^t \log\left(\frac{\exp(w_0 + \langle \w,x^t\rangle)}{1+\exp(w_0 + \langle \w,x^t\rangle)}\right) + (1-y^t)\log\left(\frac{1}{1+\exp(w_0 + \langle \w,x^t\rangle)}\right)\\
+      &=y^t(w_0 + \langle \w,x^t\rangle) - \log(1+\exp(w_0 + \langle \w,x^t\rangle)).
     \end{align*}
     The gradient of this log-likelihood with respect to $\w$ (ignoring $w_0$ for the moment) is then
     \begin{align*}
-      \frac{\partial l}{\partial \w}&=x^ty^t - \frac{x^t exp(w_0 + \langle \w,x^t)}{1+exp(w_0 + \langle \w,x^t\rangle)} \\
+      \frac{\partial l}{\partial \w}&=x^ty^t - \frac{x^t \exp(w_0 + \langle \w,x^t)}{1+\exp(w_0 + \langle \w,x^t\rangle)} \\
       &= x^t\left(y^t - \bm{P}(y^t=1|x^t,\w) \right).
     \end{align*}
     Hence the SGD update using one data point $(x^t,y^t)$ is
@@ -629,6 +642,15 @@
     \[
       w_0^{t+1} = w_0^t - \eta \left(y^t - \bm{P}(y^t=1|x^t,\w) \right).
     \]
+    \item Final average error on training: 0.047378.
+
+    $l_2$ norm of weights: 0.773330
+    \begin{figure}
+      \centering
+      \includegraphics[width=.65\textwidth]{figures/error_2b_eta1}
+      \caption{Average loss for $\eta=0.001$ using vanilla SGD} 
+    \end{figure}
+
   \end{enumerate}
   
   {\bf 3. Regularization}
