@@ -70,7 +70,14 @@ class LogisticRegression:
   # @param lambduh {Double} lambda
   # ==========================
   def perform_delayed_regularization(self, tokens, weights, now, step, lambduh):
-    # TODO: Fill in your code here
+    
+    for token in tokens:
+      if (token in weights.w_tokens):
+        before = weights.access_time[token]
+        weights.w_tokens[token] *= pow(1. - step * lambduh, now - before + 1)
+      else:
+        weights.access_time[token] = now
+
     return
 
   # ==========================
@@ -91,7 +98,8 @@ class LogisticRegression:
     while dataset.hasNext():
       instance = dataset.nextInstance()
 
-      # Your code: perform delayed regularization
+      # Perform delayed regularization
+      self.perform_delayed_regularization(instance.tokens,weights,dataset.counter,step,lambduh)
 
       # Predict the label, record the loss
       ip = self.compute_weight_feature_product(weights,instance)
@@ -193,46 +201,79 @@ if __name__ == '__main__':
   # TRAININGSIZE = 10001
   # TESTINGSIZE = 10001
 
-  # Hyperparameters:
-  lambduh = 0                 # Regularization parameter
-  step = 1.e-3                # SGD stepsize
-
   training = DataSet("../../data/train.txt", True, TRAININGSIZE)
+  testing = DataSet("../../data/test.txt", False, TESTINGSIZE)
+
+  # Hyperparameters:
+  # lambduh = 0                                 # Regularization parameter
+  # step = [1.e-3, 1.e-2, 5.e-2]                # SGD stepsizes
+
+  lambduh = [0, 0.002, 0.004, 0.006, 0.008, 0.010, 0.012, 0.014];
+  step = 0.05
+
+  # avg_loss = [[None] * (TRAININGSIZE / 100 + 1)] * (len(step)*len(lambduh)          # 2D array for storing avg loss
   avg_loss = [None] * (TRAININGSIZE / 100 + 1)
+  weight_vec = [None] * len(lambduh)
+  test_rmse_vec = [None] * len(lambduh)
 
-  # Train the logistic regression model
+  # Set up some objects we will need
   l = LogisticRegression()
-  print "Training Logistic Regression..."
-  weights = l.train(training,lambduh,step,avg_loss)
-  print "Done.\nRMSE on the training set: %f" %avg_loss[-1]
-  print "l2 norm of weights: %f" %weights.l2_norm()
+  evaluator = EvalUtil()
 
-  # # Get the RMSE on the test data using logistic regression
-  # testing = DataSet("../../data/test.txt", False, TESTINGSIZE)
-  # # (test_predictions, dummy) = l.predict(weights,testing)
-  # test_predictions = l.predict(weights,testing)
-  # # count = 0
-  # # while testing.hasNext():
-  # #   instance = testing.nextInstance()
-  # #   test_predictions[count] = l.predict(weights, instance)
-  # #   count += 1
-
-
-  # evaluator = EvalUtil()
-  # test_rmse = evaluator.eval("../../data/test_label.txt",test_predictions)
-  # print "RMSE on the test set using logistic regression: %f" %test_rmse
-
-  # # Get RMSE on the test data using baseline
-  # analyze = BasicAnalysis("../../data/test_label.txt",test_avg_ctr)
+  # # Get average CTR for test set for later use
+  # analyze = BasicAnalysis()
   # test_avg_ctr = analyze.average_ctr(testing)
-  # test_avg_rmse = evaluator.eval_baseline()
-  # print "RMSE on the tes set using average CTR: %f" %test_avg_rmse
+  # print "Computing average CTR for test set..."
+  test_avg_ctr = 0.033655
 
-  # Plot the error as a function of iterations
-  its = range(100,TRAININGSIZE,100)
-  its.append(TRAININGSIZE)
-  plt.plot(its,avg_loss)
-  plt.xlabel("Steps")
-  plt.ylabel("Average loss")
-  plt.title("Average Loss During Logistic Regression Training (eta=0.001)")
-  plt.show()
+
+  # Train the logistic regression model for various stepsizes
+  for k in range(len(lambduh)):
+    print "Training Logistic Regression..."
+    weights = l.train(training,lambduh[k],step,avg_loss)
+    print "Done.\nAverage loss on the training set (eta,lambda) = (%f,%f): %f" %(step,lambduh[k], avg_loss[k])
+    weight_vec[k] = weights.l2_norm()
+    print "l2 norm of weights (eta,lambda) = (%f,%f): %f" %(step,lambduh[k], weights.l2_norm())
+
+    # Get the RMSE on the test data using logistic regression
+    
+    # (test_predictions, dummy) = l.predict(weights,testing)
+    test_predictions = l.predict(weights,testing)
+    # count = 0
+    # while testing.hasNext():
+    #   instance = testing.nextInstance()
+    #   test_predictions[count] = l.predict(weights, instance)
+    #   count += 1
+
+    test_rmse = evaluator.eval("../../data/test_label.txt",test_predictions)
+    test_rmse_vec[k] = test_rmse
+    print "RMSE on the test set using logistic regression (eta,lambda) = (%f,%f): %f" %(step,lambduh[k], test_rmse)
+
+    # # Get RMSE on the test data using baseline
+    # test_avg_rmse = evaluator.eval_baseline("../../data/test_label.txt",test_avg_ctr)
+    # print "RMSE on the tes set using average CTR (eta,lambda) = (%f,%f): %f" %(step[k],lambduh[k], test_avg_rmse)
+
+
+  # # Plot the error as a function of iterations for different eta values
+  # its = range(100,TRAININGSIZE,100)
+  # its.append(TRAININGSIZE)
+  # plt.plot(its,avg_loss[0],its,avg_loss[1],its,avg_loss[2])
+  # plt.legend(['eta=0.001','eta=0.01','eta=0.05'])
+  # plt.xlabel("Steps")
+  # plt.ylabel("Average loss")
+  # plt.title("Average Loss During Logistic Regression Training")
+  # plt.show()
+
+  # Plot the l2 norms of weights as a function of lambda
+  plt.plot(lambduh,weight_vec,'b-o')
+  plt.xlabel('Lambda')
+  plt.ylabel('l2 norm of weights')
+  plt.title('l2 norm of weights as regularization is increased')
+  plt.legend(range())
+
+  # Plot the RMSE as a function of lambda
+  plt.plot(lambduh,rmse_vec,'b-o')
+  plt.xlabel('Lambda')
+  plt.ylabel('RMSE')
+  plt.title('RMSE for predicted CTR on test set as regularization is increased')
+  plt.legend(range())

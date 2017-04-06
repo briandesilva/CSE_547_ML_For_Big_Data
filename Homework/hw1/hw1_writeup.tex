@@ -642,14 +642,40 @@
     \[
       w_0^{t+1} = w_0^t - \eta \left(y^t - \bm{P}(y^t=1|x^t,\w) \right).
     \]
-    \item Final average error on training: 0.047378.
-
-    $l_2$ norm of weights: 0.773330
+    \item 
     \begin{figure}
       \centering
-      \includegraphics[width=.65\textwidth]{figures/error_2b_eta1}
-      \caption{Average loss for $\eta=0.001$ using vanilla SGD} 
+      \includegraphics[width=.75\textwidth]{figures/error_2b}
+      \caption{Average loss training logistic regression to predict CTR using vanilla unregularized SGD} 
+      \label{fig:avg_loss_SGD}
     \end{figure}
+
+    \begin{table}[h]
+    \centering
+      \begin{tabular}{|c||c|} \hline
+      $\eta$  & $\norm{\w}_2$   \\ \hline
+      0.001   & 3.801879        \\ \hline
+      0.01    & 9.057170        \\ \hline
+      0.05    & 22.291951       \\ \hline
+      \end{tabular}
+      \caption{The $l_2$ norms of the logistic regression weights after one pass over the data with SGD ($\lambda=0$)}
+      \label{tab:weights_2b}
+    \end{table}
+
+    Figure \ref{fig:avg_loss_SGD} shows the average loss $\bar L$ as a function of the number of steps $T$ for $\eta = \{0.00, 0.01, 0.05\}$ without regularization. Note that the average losses in each case were identical, making it appear as if only one curve has been plotted. The $l_2$ norms of the weights after the passes are shown in Table \ref{tab:weights_2b}.
+    \begin{table}
+      \centering
+      \begin{tabular}{|c|c|c|} \hline
+      $\eta$ & Predicted CTR & Average CTR \\ \hline
+      0.001&  0.171172    & 0.173084    \\ \hline
+      0.01 &  0.171328    & 0.173084    \\ \hline
+      0.05 &  0.173405    & 0.173084    \\ \hline
+      \end{tabular}
+      \caption{The RMSE of the predicted CTR for the test data using logistic regression optimized with SGD ($\lambda=0$)}
+      \label{tab:RMSE_2b}
+    \end{table}
+
+    The RMSE on the test set using my predicted CTR and the average CTR for various values of $\eta$ is summarized in Table \ref{tab:RMSE_2b}.
 
   \end{enumerate}
   
@@ -667,6 +693,16 @@
 
     \item Predict the CTR for the test data and evaluate the RMSE.
       Plot the RMSE as a function as $\lambda$.
+  \end{enumerate}
+
+  \solution
+  \begin{enumerate}[(a)]
+    \item \begin{itemize}
+      \item[i.] Figure *** shows the $l_2$ norm of the weights as $\lambda$ is increased.
+      \item[ii.] ***
+      \item[iii.] ***
+    \end{itemize}
+    \item Figure *** visualizes the RMSE as a function of the regularization parameter $\lambda$.
   \end{enumerate}
 
   {\bf 4. Hashing Kernel}
