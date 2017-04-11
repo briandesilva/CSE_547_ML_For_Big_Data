@@ -70,13 +70,11 @@ class LogisticRegression:
   # @param lambduh {Double} lambda
   # ==========================
   def perform_delayed_regularization(self, tokens, weights, now, step, lambduh):
-    
     for token in tokens:
       if (token in weights.w_tokens):
         before = weights.access_time[token]
-        weights.w_tokens[token] *= pow(1. - step * lambduh, now - before + 1)
-      else:
-        weights.access_time[token] = now
+        weights.w_tokens[token] *= pow(1. - step * lambduh, now - before)
+      weights.access_time[token] = now
 
     return
 
@@ -102,11 +100,14 @@ class LogisticRegression:
       self.perform_delayed_regularization(instance.tokens,weights,dataset.counter,step,lambduh)
 
       # Predict the label, record the loss
-      ip = self.compute_weight_feature_product(weights,instance)
-      if ip > 0:
-        prediction = 1.
-      else:
-        prediction = 0.
+      # ip = self.compute_weight_feature_product(weights,instance)
+      # if ip > 0:
+      #   prediction = 1.
+      # else:
+      #   prediction = 0.
+
+      exp_inner_product = math.exp(self.compute_weight_feature_product(weights,instance))
+      prediction = exp_inner_product / (1 + exp_inner_product)
 
       loss += pow(prediction - instance.clicked, 2)
 
@@ -123,23 +124,26 @@ class LogisticRegression:
 
         
       # Compute w0 + <w, x>, and gradient
-      exp_inner_product = math.exp(ip)
-      coeff = instance.clicked - exp_inner_product / (1 + exp_inner_product)
+      # exp_inner_product = math.exp(ip)
+      coeff = instance.clicked - prediction
       
       # Update weights along the negative gradient
-      weights.w_age += step * instance.age * coeff
-      weights.w_gender += step * instance.gender * coeff
-      weights.w_depth += step * instance.depth * coeff
-      weights.w_position += step * instance.position * coeff
+      weights.w_age += step * (instance.age * coeff - lambduh * weights.w_age)
+      weights.w_gender += step * (instance.gender * coeff - lambduh * weights.w_gender)
+      weights.w_depth += step * (instance.depth * coeff - lambduh * weights.w_depth)
+      weights.w_position += step * (instance.position * coeff - lambduh * weights.w_position)
       weights.w0 += step * coeff
+
 
       # Update weights corresponding to tokens
       for token in instance.tokens:
         if token in weights.w_tokens:
-          weights.w_tokens[token] += step * coeff
+          weights.w_tokens[token] += step * (coeff)
         else:
           weights.w_tokens[token] =  step * coeff
 
+    # Perform delayed regularization on all the weights
+    self.perform_delayed_regularization(weights.w_tokens,weights,dataset.counter,step,lambduh)
       
     dataset.reset()
     return weights
@@ -231,7 +235,7 @@ if __name__ == '__main__':
   for k in range(len(lambduh)):
     print "Training Logistic Regression..."
     weights = l.train(training,lambduh[k],step,avg_loss)
-    print "Done.\nAverage loss on the training set (eta,lambda) = (%f,%f): %f" %(step,lambduh[k], avg_loss[k])
+    print "Done.\nAverage loss on the training set (eta,lambda) = (%f,%f): %f" %(step,lambduh[k], avg_loss[-1])
     weight_vec[k] = weights.l2_norm()
     print "l2 norm of weights (eta,lambda) = (%f,%f): %f" %(step,lambduh[k], weights.l2_norm())
 
@@ -266,14 +270,15 @@ if __name__ == '__main__':
 
   # Plot the l2 norms of weights as a function of lambda
   plt.plot(lambduh,weight_vec,'b-o')
-  plt.xlabel('Lambda')
-  plt.ylabel('l2 norm of weights')
-  plt.title('l2 norm of weights as regularization is increased')
-  plt.legend(range())
+  plt.xlabel('$\lambda$')
+  plt.ylabel('$l_2$ norm of weights')
+  plt.title('$l_2$ norm of weights as $\lambda$ is increased')
+  # plt.legend(lambduh)
 
-  # Plot the RMSE as a function of lambda
-  plt.plot(lambduh,rmse_vec,'b-o')
-  plt.xlabel('Lambda')
+    # Plot the RMSE as a function of lambda
+  plt.figure()
+  plt.plot(lambduh,test_rmse_vec,'b-o')
+  plt.xlabel('$\lambda$')
   plt.ylabel('RMSE')
-  plt.title('RMSE for predicted CTR on test set as regularization is increased')
-  plt.legend(range())
+  plt.title('RMSE for predicted CTR on test set as $\lambda$ is increased')
+  plt.show()

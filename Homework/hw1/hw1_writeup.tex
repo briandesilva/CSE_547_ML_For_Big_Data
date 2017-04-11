@@ -697,12 +697,28 @@
 
   \solution
   \begin{enumerate}[(a)]
-    \item \begin{itemize}
-      \item[i.] Figure *** shows the $l_2$ norm of the weights as $\lambda$ is increased.
-      \item[ii.] ***
-      \item[iii.] ***
-    \end{itemize}
-    \item Figure *** visualizes the RMSE as a function of the regularization parameter $\lambda$.
+    \item
+        \begin{figure}
+          \centering
+          \includegraphics[width=.75\textwidth]{figures/weights_3a}
+          \caption{The $l_2$ norm of the logistic regression weights as the regularization parameter $\lambda$ is varied.} 
+          \label{fig:weights_3a}
+        \end{figure}
+
+        \begin{figure}
+          \centering
+          \includegraphics[width=.75\textwidth]{figures/error_3b}
+          \caption{The RMSE for logistic regression on the testing set as the regularization parameter $\lambda$ is varied.}
+          \label{fig:error_3b}
+        \end{figure}
+
+
+      \begin{itemize}
+        \item[i.] Figure \ref{fig:weights_3a} shows the $l_2$ norm of the weights as $\lambda$ is increased.
+        \item[ii.] Yes, the $l_2$ norm of the weight vector decreases each time we increase $\lambda$. This is because we are penalizing large entries in $\w$ more heavily the more allow $\lambda$ to grow. 
+        \item[iii.] As $\lambda\to\infty$ we penalize nonzero entries in $\w$ infinitely severely, causing all the entries in the weight vector to converge to 0. 
+      \end{itemize}
+    \item Figure \ref{fig:error_3b} visualizes the RMSE as a function of the regularization parameter $\lambda$. The error initially decreases when we turn on regularization, but eventually the error on the test set starts to increase as we raise $\lambda$.
   \end{enumerate}
 
   {\bf 4. Hashing Kernel}
@@ -713,6 +729,21 @@
   \\
   % previously, m = \{97, 12289, 1572869\} (and m=12289 for personalization)
   \\ Train the weights in the hashed feature space with $m = \{101, 12277, 1573549\}$, $\lambda = 0.001$ and stepsize $\eta = 0.01$. Report the RMSE of the predicted CTRs for all 3 cases. 
+
+  \solution
+  \begin{table}[h]
+  \centering
+    \begin{tabular}{|c||c|} \hline
+    $m$     & $RMSE$   \\ \hline
+    101     &  0.172430      \\ \hline
+    12277   & 0.171969       \\ \hline
+    1573549 & 0.171962       \\ \hline
+    \end{tabular}
+    \caption{The $l_2$ norms of the logistic regression weights after one pass over the data with SGD ($\lambda=0$)}
+    \label{tab:error_4}
+  \end{table}
+
+  Table \ref{tab:error_4} gives the RMSE of the predicted CTRs on the test set for the three cases.
   
 
   {\bf 5. Extra Credit: Personalization}

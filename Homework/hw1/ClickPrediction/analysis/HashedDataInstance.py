@@ -42,9 +42,18 @@ class HashedDataInstance:
     tokens = [int(xx) for xx in fields[offset + 5].split(",")]
     
     # TODO: Fill in your code here to create a hashed_text_feature.
-    self.featuredim = -1
+    h = HashUtil();
+    self.featuredim = dim
     self.hashed_text_feature = {}
-    
+    # self.hashed_text_feature = {h.hash_to_range(token,dim):(h.hash_to_sign(token)) for token in tokens}
+    for token in tokens:
+      if h.hash_to_range(token,dim) in self.hashed_text_feature:
+        self.hashed_text_feature[h.hash_to_range(token,dim)] += h.hash_to_sign(token)
+      else:
+        self.hashed_text_feature[h.hash_to_range(token,dim)] = h.hash_to_sign(token)
+
+
+
     if personal:
       # TODO (extra credit): Fill in your code here to  create a hashed feature
       #      with personalization.
@@ -57,5 +66,8 @@ class HashedDataInstance:
   # @param val {Int}
   # =====================
   def update_feature(self, key, val):
-    # TODO: Fill in your code here
+    if key in self.hashed_text_feature:
+      self.hashed_text_feature[key] += val
+    else:
+      self.hashed_text_feature[key] = val
     pass
