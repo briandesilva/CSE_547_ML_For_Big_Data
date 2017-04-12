@@ -577,19 +577,22 @@
   \begin{enumerate}[(a)]
     \item I found the average CTR for the training data to be 0.033655.
     \item I found that the number of unique tokens in the training set was 141063, the number in the testing set was 109459, and the number in both sets was 79261.
-    \item I found that the age groups of the training and testing sets had the following numbers of unique users:
-    \begin{centering}
-      \begin{tabular}{c|c|c}
+    \begin{table}[h]
+      \centering
+      \begin{tabular}{|c|c|c|}
         {\bf Age group}& {\bf Unique users (training)} & {\bf Unique users (testing)}\\ \hline
-        0 &8826   &2021   \\
-        1 &79668  &48783  \\
-        2 &162725 &113818 \\
-        3 &307482 &178416 \\
-        4 &213292 &117326 \\
-        5 &146605 &79635  \\
-        6 &63834  &34908  \\
+        0 &8826   &2021   \\ \hline
+        1 &79668  &48783  \\ \hline
+        2 &162725 &113818 \\ \hline
+        3 &307482 &178416 \\ \hline
+        4 &213292 &117326 \\ \hline
+        5 &146605 &79635  \\ \hline
+        6 &63834  &34908  \\ \hline
       \end{tabular}
-    \end{centering}
+      \caption{Numbers of unique users of each age group in the training and testing sets}
+      \label{tab:age}
+    \end{table}
+    \item The numbers of unique users in each age group from the training and testing sets are summarized in Table \ref{tab:age}
   \end{enumerate}
 
   \vskip 1cm
@@ -652,7 +655,7 @@
 
     \begin{table}[h]
     \centering
-      \begin{tabular}{|c||c|} \hline
+      \begin{tabular}{|c|c|} \hline
       $\eta$  & $\norm{\w}_2$   \\ \hline
       0.001   & 3.801879        \\ \hline
       0.01    & 9.057170        \\ \hline
@@ -679,6 +682,7 @@
 
   \end{enumerate}
   
+  \newpage
   {\bf 3. Regularization}
   \begin{enumerate}[(a)]
     \item Implement the regularization, and train the weights again using stepsize
@@ -720,6 +724,7 @@
       \end{itemize}
     \item Figure \ref{fig:error_3b} visualizes the RMSE as a function of the regularization parameter $\lambda$. The error initially decreases when we turn on regularization, but eventually the error on the test set starts to increase as we raise $\lambda$.
   \end{enumerate}
+  \vspace{1cm}
 
   {\bf 4. Hashing Kernel}
   \\
@@ -744,6 +749,7 @@
   \end{table}
 
   Table \ref{tab:error_4} gives the RMSE of the predicted CTRs on the test set for the three cases.
+  \vspace{1cm}
   
 
   {\bf 5. Extra Credit: Personalization}

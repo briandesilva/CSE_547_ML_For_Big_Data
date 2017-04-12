@@ -55,8 +55,6 @@ class LogisticRegressionWithHashing:
     # Components of inner product involving tokens
     for i in instance.hashed_text_feature:
       output += weights.w_hashed_features[i]
-      # if (token in weights.w_tokens):
-      #   output += weights.w_tokens[token]
 
     return output
   
@@ -107,17 +105,12 @@ class LogisticRegressionWithHashing:
 
       if ((dataset.counter % output_steps)==0) or (not dataset.hasNext()):
         if dataset.hasNext():
-          # (predictions,loss) = self.predict(weights,dataset)
           avg_loss[(dataset.counter / output_steps) - 1] = loss / dataset.counter
-          # print "Average loss after %d iterations: %f" %(dataset.counter, loss / dataset.counter)
         else:
-          # (predictions,loss) = self.predict(weights,dataset)
           avg_loss[dataset.counter / output_steps] = loss / dataset.counter
-          # print "Average loss after %d iterations: %f" %(dataset.counter, loss / dataset.counter)
 
         
       # Compute w0 + <w, x>, and gradient
-      # exp_inner_product = math.exp(ip)
       coeff = instance.clicked - prediction
       
       # Update weights along the negative gradient
@@ -165,23 +158,14 @@ class LogisticRegressionWithHashing:
   
   
 if __name__ == '__main__':
-  # TODO: Fill in your code here
 
     TRAININGSIZE = 2335859
     TESTINGSIZE = 1016552
-
-    # TRAININGSIZE = 10001
-    # TESTINGSIZE = 10001
 
     training = DataSet("../../data/train.txt", True, TRAININGSIZE)
     testing = DataSet("../../data/test.txt", False, TESTINGSIZE)
 
     # Hyperparameters:
-    # lambduh = 0                                 # Regularization parameter
-    # step = [1.e-3, 1.e-2, 5.e-2]                # SGD stepsizes
-
-    # lambduh = [0, 0.002, 0.004, 0.006, 0.008, 0.010, 0.012, 0.014];
-    # step = 0.05
 
     lambduh = 0.001
     step = 0.01
@@ -215,7 +199,7 @@ if __name__ == '__main__':
       print "RMSE on the test set using logistic regression (eta,lambda,m) = (%f,%f,%d): %f" %(step,lambduh,m[k],test_rmse)
 
     # Plot the RMSE as a function of the dimension of the hashed feature space
-plt.plot(m,test_rmse_vec,'b-o')
+plt.semilogx(m,test_rmse_vec,'b-o')
 plt.xlabel('Hashed feature space dimension')
 plt.ylabel('RMSE')
 plt.title('RMSE for predicted CTR on test set as hashed feature space dimension is increased')

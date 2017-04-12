@@ -99,13 +99,6 @@ class LogisticRegression:
       # Perform delayed regularization
       self.perform_delayed_regularization(instance.tokens,weights,dataset.counter,step,lambduh)
 
-      # Predict the label, record the loss
-      # ip = self.compute_weight_feature_product(weights,instance)
-      # if ip > 0:
-      #   prediction = 1.
-      # else:
-      #   prediction = 0.
-
       exp_inner_product = math.exp(self.compute_weight_feature_product(weights,instance))
       prediction = exp_inner_product / (1 + exp_inner_product)
 
@@ -124,7 +117,6 @@ class LogisticRegression:
 
         
       # Compute w0 + <w, x>, and gradient
-      # exp_inner_product = math.exp(ip)
       coeff = instance.clicked - prediction
       
       # Update weights along the negative gradient
@@ -154,32 +146,9 @@ class LogisticRegression:
   # @param dataset {DataSet}
   # ==========================
   def predict(self, weights, dataset):
-    # exp_inner_product = math.exp(self.compute_weight_feature_product(weights,instance))
-    # return exp_inner_product / (1 + exp_inner_product)
-
 
     predictions = [None] * dataset.size
     count = dataset.counter             # Record position in dataset so it can be returned the same way
-
-    # # Check if we're working with training or testing data
-    # if dataset.has_label:
-    #   # Get predictions for the later parts of dataset
-    #   while dataset.hasNext():
-    #     instance = dataset.nextInstance()
-    #     exp_inner_product = math.exp(self.compute_weight_feature_product(weights,instance))
-    #     predictions[dataset.counter-1] = exp_inner_product / (1 + exp_inner_product)
-    #     loss += pow(predictions[dataset.counter-1] - instance.clicked,2)
-
-    #   # Get predictions for the earlier part of the dataset
-    #   dataset.reset()
-    #   while dataset.counter < count:
-    #     instance = dataset.nextInstance()
-    #     exp_inner_product = math.exp(self.compute_weight_feature_product(weights,instance))
-    #     predictions[dataset.counter-1] = exp_inner_product / (1 + exp_inner_product)
-    #     loss += pow(predictions[dataset.counter-1] - instance.clicked,2)
-
-    # else:
-
 
     # Get predictions for the later parts of dataset
     while dataset.hasNext():
@@ -202,13 +171,11 @@ if __name__ == '__main__':
   TRAININGSIZE = 2335859
   TESTINGSIZE = 1016552
 
-  # TRAININGSIZE = 10001
-  # TESTINGSIZE = 10001
-
   training = DataSet("../../data/train.txt", True, TRAININGSIZE)
   testing = DataSet("../../data/test.txt", False, TESTINGSIZE)
 
   # Hyperparameters:
+
   # lambduh = 0                                 # Regularization parameter
   # step = [1.e-3, 1.e-2, 5.e-2]                # SGD stepsizes
 
@@ -224,10 +191,7 @@ if __name__ == '__main__':
   l = LogisticRegression()
   evaluator = EvalUtil()
 
-  # # Get average CTR for test set for later use
-  # analyze = BasicAnalysis()
-  # test_avg_ctr = analyze.average_ctr(testing)
-  # print "Computing average CTR for test set..."
+  # Get average CTR for test set for later use
   test_avg_ctr = 0.033655
 
 
@@ -240,14 +204,7 @@ if __name__ == '__main__':
     print "l2 norm of weights (eta,lambda) = (%f,%f): %f" %(step,lambduh[k], weights.l2_norm())
 
     # Get the RMSE on the test data using logistic regression
-    
-    # (test_predictions, dummy) = l.predict(weights,testing)
     test_predictions = l.predict(weights,testing)
-    # count = 0
-    # while testing.hasNext():
-    #   instance = testing.nextInstance()
-    #   test_predictions[count] = l.predict(weights, instance)
-    #   count += 1
 
     test_rmse = evaluator.eval("../../data/test_label.txt",test_predictions)
     test_rmse_vec[k] = test_rmse
