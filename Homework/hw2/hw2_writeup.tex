@@ -1,0 +1,239 @@
+\documentclass{article}
+
+\usepackage{fancyhdr}
+\usepackage{extramarks}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{caption,subcaption}
+\usepackage{subfig}
+\usepackage{enumerate}          % For enumerates indexed by letters
+\usepackage{bm}                 % For bold letters
+\usepackage{algorithm2e}        % For pseudocode
+\usepackage{url}                % So texttt wraps instead of creating hbox
+
+%
+% Basic Document Settings
+%
+
+\topmargin=-0.45in
+\evensidemargin=0in
+\oddsidemargin=0in
+\textwidth=7in
+\textheight=9.0in
+\headsep=0.25in
+\linespread{1.1}
+\pagestyle{fancy}
+
+\lhead{\hmwkAuthorName}
+\chead{\hmwkClass:\ \hmwkTitle}
+\rhead{\firstxmark}
+\lfoot{\lastxmark}
+\cfoot{\thepage}
+
+\renewcommand\headrulewidth{0.4pt}
+\renewcommand\footrulewidth{0.4pt}
+
+\setlength\parindent{0pt}
+
+%
+% Create Problem Sections
+%
+
+\newcommand{\enterProblemHeader}[1]{
+    \nobreak\extramarks{}{Problem \arabic{#1} continued on next page\ldots}\nobreak{}
+    \nobreak\extramarks{Problem \arabic{#1} (continued)}{Problem \arabic{#1} continued on next page\ldots}\nobreak{}
+}
+
+\newcommand{\exitProblemHeader}[1]{
+    \nobreak\extramarks{Problem \arabic{#1} (continued)}{Problem \arabic{#1} continued on next page\ldots}\nobreak{}
+    \stepcounter{#1}
+    \nobreak\extramarks{Problem \arabic{#1}}{}\nobreak{}
+}
+
+\setcounter{secnumdepth}{0}
+\newcounter{partCounter}
+\newcounter{homeworkProblemCounter}
+\setcounter{homeworkProblemCounter}{1}
+\nobreak\extramarks{Problem \arabic{homeworkProblemCounter}}{}\nobreak{}
+
+%
+% Homework Problem Environment
+%
+% This environment takes an optional argument. When given, it will adjust the
+% problem counter. This is useful for when the problems given for your
+% assignment aren't sequential. See the last 3 problems of this template for an
+% example.
+%
+\newenvironment{homeworkProblem}[1][-1]{
+    \ifnum#1>0
+        \setcounter{homeworkProblemCounter}{#1}
+    \fi
+    \section{Problem \arabic{homeworkProblemCounter}}
+    \setcounter{partCounter}{1}
+    \enterProblemHeader{homeworkProblemCounter}
+}{
+    \exitProblemHeader{homeworkProblemCounter}
+}
+
+%
+% Homework Details
+%   - Title
+%   - Due date
+%   - Class
+%   - Section/Time
+%   - Instructor
+%   - Author
+%
+
+\newcommand{\hmwkTitle}{CSE 547 Homework 2}
+\newcommand{\hmwkDueDate}{April 26, 2017}
+\newcommand{\hmwkClass}{CSE 547}
+\newcommand{\hmwkAuthorName}{Brian de Silva}
+
+%
+% Title Page
+%
+
+\title{
+    \vspace{2in}
+    \textmd{\textbf{\hmwkClass:\ \hmwkTitle}}\\
+    \normalsize\vspace{0.1in}\small{Due\ on\ \hmwkDueDate\ }\\
+    \vspace{3in}
+}
+
+\author{\textbf{\hmwkAuthorName}}
+\date{}
+
+\renewcommand{\part}[1]{\textbf{\large Part \Alph{partCounter}}\stepcounter{partCounter}\\}
+
+%
+% Various Helper Commands
+%
+
+% Useful for algorithms
+\newcommand{\alg}[1]{\textsc{\bfseries \footnotesize #1}}
+
+% For derivatives
+\newcommand{\deriv}[1]{\frac{\mathrm{d}}{\mathrm{d}x} (#1)}
+
+% For partial derivatives
+\newcommand{\pd}[2]{\frac{\partial}{\partial #1} (#2)}
+
+\newcommand{\pdd}[2]{\frac{\partial #1}{\partial #2}}
+
+% Integral dx
+\newcommand{\dx}{\mathrm{d}x}
+
+% Alias for the Solution section header
+\newcommand{\solution}{\textbf{\vskip 0.2cm \large Solution:\\}}
+
+% Useful commands
+\newcommand{\bbm}{\begin{bmatrix}}
+\newcommand{\ebm}{\end{bmatrix}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\dtdx}{\frac{\Delta t}{\Delta x}}
+\newcommand{\half}{\frac12}
+\newcommand{\norm}[1]{\left\|#1\right\|}
+% \newcommand{\Pr}{\mathbb{P}}
+
+
+\begin{document}
+
+\maketitle
+
+\pagebreak
+
+\section*{Collaborators}
+I collaborated with Weston Barger and Emily Dinan on ***
+
+% Problem 1
+\begin{homeworkProblem}
+	{\bf Gaussian Random Projections and Inner Products [10 Points]}
+	\\
+	\\
+	In this problem, you will show that inner products are approximately preserved using random projections. Let $\phi(x) = \dfrac{1}{\sqrt{m}}Ax$ represent our random projection of $x \in \mathbb{R}^d$, with $A$ an $m \times d$ projection matrix with each entry sampled i.i.d from $N(0,1)$. (Note that each row of $A$ is a random projection vector, $v^{(i)}$.)  
+
+	The \emph{norm preservation theorem} states that for all $x \in \mathbb{R}^d$, the norm of the random projection $\phi(x)$ approximately maintains the norm of the original $x$ with high probability:
+	\begin{equation}
+	\label{eq:npt}
+	\Pr\left((1 - \epsilon) \norm{x}^2 \leq \norm{\phi(x)}^2 \leq (1 +
+	\epsilon)\norm{x}^2 \right) \geq 1 - 2e^{-(\epsilon^2 -\epsilon^3)m/4},
+	\end{equation}
+	where $\epsilon \in (0, 1/2)$. 
+
+	Using the norm preservation theorem, prove that for any $u,v \in \mathbb{R}^d$ s.t. $\norm{u} \leq 1$ and $\norm{v} \leq 1$,
+	\begin{equation}
+	\Pr(|u\cdot v - \phi(u)\cdot\phi(v)| \geq \epsilon) \leq 4e^{-(\epsilon^2 -\epsilon^3)m/4}.
+	\end{equation}
+	Note that $u\cdot v$ is the original dot product, and $\phi(u)\cdot \phi(v)$ is the dot product for the random projections. This statement puts a probabilistic bound on the distance between the two dot products. (\emph{Hint: Think about using Theorem (\ref{eq:npt}) with $x = u+v$ and $x = u-v$}).
+
+	\solution
+
+	First notice that
+	\begin{align*}
+		&(1-\epsilon)\|x\|^2\leq \norm{\phi(x)}^2\leq (1+\epsilon)\norm{x}^2\\
+		\iff& \norm{x}^2-\epsilon\norm{x}\leq \norm{\phi(x)}^2\leq \norm{x}^2+\epsilon\norm{x}^2\\
+		\iff & -\epsilon\norm{x}^2\leq \norm{\phi(x)}^2-\norm{x}^2\leq \epsilon\norm{x}^2\\
+		\iff & \left|\norm{\phi(x)}^2-\norm{x}^2 \right|\leq \epsilon\norm{x}^2.
+	\end{align*}
+	Multiplying the above by $-1$ gives a similar statement:
+	\[
+		-\epsilon\norm{x}^2\leq \norm{x}^2- \norm{\phi(x)}^2\leq \epsilon\norm{x}^2.
+	\]
+	Observe also that $\phi$ is a linear function, so for any $x,y\in\R^d$, $\phi(x+y)=\phi(x)+\phi(y)$. We will need this fact later.
+	Following the hint and applying Theorem (\ref{eq:npt}) to $x=u+v$ and $x=u-v$, we obtain
+	\[
+		\Pr\left((1-\epsilon)\|u+v\|^2\leq \norm{\phi(u+v)}^2\leq (1+\epsilon)\norm{u+v}^2\right) \geq 1-2e^{-(\epsilon^2-\epsilon^3)m/4}
+	\]
+	and
+	\[
+		\Pr\left((1-\epsilon)\|u-v\|^2\leq \norm{\phi(u-v)}^2\leq (1+\epsilon)\norm{u-v}^2\right) \geq 1-2e^{-(\epsilon^2-\epsilon^3)m/4}.
+	\]
+	Manipulating the inequalities as above, these two statements become
+	\[
+		\Pr\left(\left|\norm{\phi(u+v)}^2-\norm{u+v}^2 \right|\leq \epsilon\norm{u+v}^2 \right)\geq 1-2e^{-(\epsilon^2-\epsilon^3)m/4}
+	\]
+	and
+	\[
+		\Pr\left(\left|\norm{\phi(u-v)}^2-\norm{u-v}^2 \right|\leq \epsilon\norm{u-v}^2 \right)\geq 1-2e^{-(\epsilon^2-\epsilon^3)m/4}.
+	\]
+	These expressions are equivalent to the following
+	\[
+		\Pr\left(\left|\norm{\phi(u+v)}^2-\norm{u+v}^2 \right|\geq \epsilon\norm{u+v}^2 \right)\leq 1 - \left(1-2e^{-(\epsilon^2-\epsilon^3)m/4}\right) = 2e^{-(\epsilon^2-\epsilon^3)m/4}
+	\]
+	and
+	\[
+		\Pr\left(\left|\norm{\phi(u-v)}^2-\norm{u-v}^2 \right|\geq \epsilon\norm{u-v}^2 \right)\leq 1 - \left(1-2e^{-(\epsilon^2-\epsilon^3)m/4}\right) = 2e^{-(\epsilon^2-\epsilon^3)m/4}.
+	\]
+
+	Now, recall that for any two events $A$ and $B$, $\Pr(A\wedge B)\leq \Pr(A)+\Pr(B)$. Letting $A$ be the event that $$A:~~\left|\norm{\phi(u+v)}^2-\norm{u+v}^2 \right|\geq \epsilon\norm{u+v}^2$$ and $B$ be the event $$B:~~\left|\norm{\phi(u-v)}^2-\norm{u-v}^2 \right|\geq \epsilon\norm{u-v}^2,$$ it follows that the probability of both occuring is at most $\Pr(A)+\Pr(B)\leq4e^{-(\epsilon^2-\epsilon^3)m/4}$. We saw previously that 
+	\begin{align*}
+		&\left|\norm{\phi(u+v)}^2-\norm{u+v}^2 \right|\geq \epsilon\norm{u+v}^2\\
+		\iff & -\epsilon\norm{u+v}^2\leq \norm{u+v}^2-\norm{\phi(u)+\phi(v)}^2\leq \epsilon\norm{u+v}^2
+	\end{align*}
+	and 
+	\begin{align*}
+		&\left|\norm{\phi(u-v)}^2-\norm{u-v}^2 \right|\geq \epsilon\norm{u-v}^2\\
+		\iff & -\epsilon\norm{u-v}^2\leq \norm{\phi(u)-\phi(v)}^2 - \norm{u-v}^2\leq \epsilon\norm{u+v}^2.
+	\end{align*}
+	If both inequalities hold simultaneously, we may add them together to obtain
+	\[
+		-\epsilon\left(\norm{u+v}^2+\norm{u-v}^2\right) \leq \norm{\phi(u)-\phi(v)}^2-\norm{\phi(u)+\phi(v)}^2 + \norm{u+v}^2-\norm{u-v}^2\leq\epsilon\left(\norm{u+v}^2+\norm{u-v}^2\right).
+	\]
+	Using the Parallelogram law and Polarization identity, we can simplify this to
+	\begin{align*}
+		&-2\epsilon\left(\norm{u}^2+\norm{v}^2\right)\leq 4\left(u\cdot v-\phi(u)\cdot\phi(v) \right) \leq 2\epsilon\left(\norm{u}^2+\norm{v}^2\right)\\
+		\iff& \epsilon\left(\norm{u}^2+\norm{v}^2\right)\leq 2\left(u\cdot v-\phi(u)\cdot\phi(v) \right) \leq \epsilon\left(\norm{u}^2+\norm{v}^2\right) \\
+		\implies & 2\left|u\cdot v-\phi(u)\cdot\phi(v) \right|\leq \epsilon \left(\norm{u}^2+\norm{v}^2\right) \leq \epsilon(1+1) = 2\epsilon\\
+		\implies& \left|u\cdot v-\phi(u)\cdot\phi(v) \right| \leq \epsilon.
+	\end{align*}
+	Putting everything together, we have our result
+	\begin{align*}
+		\Pr\left(\left|u\cdot v-\phi(u)\cdot\phi(v) \right| \leq \epsilon \right) \leq 4e^{-(\epsilon^2-\epsilon^3)m/4}.
+	\end{align*}
+\end{homeworkProblem}
+
+\end{document}
