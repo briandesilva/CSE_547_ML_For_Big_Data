@@ -154,7 +154,7 @@ I collaborated with Weston Barger and Emily Dinan on ***
 	{\bf Gaussian Random Projections and Inner Products [10 Points]}
 	\\
 	\\
-	In this problem, you will show that inner products are approximately preserved using random projections. Let $\phi(x) = \dfrac{1}{\sqrt{m}}Ax$ represent our random projection of $x \in \mathbb{R}^d$, with $A$ an $m \times d$ projection matrix with each entry sampled i.i.d from $N(0,1)$. (Note that each row of $A$ is a random projection vector, $v^{(i)}$.)  
+	In this problem, you will show that inner products are approximately preserved using random projections. Let $\phi(x) = \tfrac{1}{\sqrt{m}}Ax$ represent our random projection of $x \in \mathbb{R}^d$, with $A$ an $m \times d$ projection matrix with each entry sampled i.i.d from $N(0,1)$. (Note that each row of $A$ is a random projection vector, $v^{(i)}$.)  
 
 	The \emph{norm preservation theorem} states that for all $x \in \mathbb{R}^d$, the norm of the random projection $\phi(x)$ approximately maintains the norm of the original $x$ with high probability:
 	\begin{equation}
@@ -234,6 +234,248 @@ I collaborated with Weston Barger and Emily Dinan on ***
 	\begin{align*}
 		\Pr\left(\left|u\cdot v-\phi(u)\cdot\phi(v) \right| \leq \epsilon \right) \leq 4e^{-(\epsilon^2-\epsilon^3)m/4}.
 	\end{align*}
+\end{homeworkProblem}
+
+
+\begin{homeworkProblem}
+  {\bf KD-Trees and LSH for Approximate Neighbor Finding [15 Points]}
+  \\
+  \\In this problem, you will use KD-trees and Locality Sensitive
+  Hashing (LSH) to find exact and approximate nearest neighbors. To
+  explore the performance of KD-trees, you can use the starter code in
+  ``NearestNeighbor.zip'' on the course website. You may alter the class
+  \texttt{KDTreeAnalysis} to generate a dataset and return the time it
+  takes to query from the KD-tree on that dataset, although this is not a
+  part of the assignment.
+  For approximate nearest neighbor search, $\alpha$ can
+  be set to a value greater than 1. The KD-tree implementation was
+  downloaded from\\http://sourceforge.net/projects/java-ml.
+
+  For datasets with high dimensionality $d$, KD-trees will not scale
+  well and other methods must be used. LSH offers a method for
+  reducing the dimensionality of the data while still enabling
+  approximate neighbor finding. For this portion of the problem, you
+  will be using an artificially generated dataset consisting of
+  term-document frequency for a vocabulary of size $d = 1000$ and $n =
+  100000$ documents. The data can be found in ``sim\_docdata.zip'' on
+  the course website. The zip file consists of two files,
+  sim\_docdata.mtx and test\_docdata.mtx, which contain the term
+  frequencies in a sparse matrix in Matrix Market format: each row is
+  in the form ``termid docid frequency''. test\_docdata.mtx contains a
+  set of documents to use for querying nearest neighbors. The size of
+  the test set is 500 documents. You will need to complete the
+  classes \texttt{MethodComparison},
+  \texttt{GaussianRandomProjection}, and
+  \texttt{LocalitySensitiveHash}.
+  \begin{enumerate}[(a)]
+  \item Implement a nearest neighbor search using
+    LSH and $m$, the number of projections, in $\{5, 10,
+    20\}$. Although normally we would search 'until time runs out',
+    for this problem, just search all bins that have a Hamming
+    distance from the bin of the query data point $<= 3$. Record the
+    average query time and the average distance to the nearest
+    neighbor for the test set. Compare this with the average query
+    time and average distance using a KD-tree with $\alpha$ in $\{1,
+    5, 10\}$. Note that the KD-tree implementation will be slow, and
+    may take 5-10 minutes. Explain the trends found.
+  \item Implement a Gaussian random projection on
+    the document data for $m$ in $\{5, 10, 20\}$. Use these projections
+    as the entries for a KD-tree. This results in an alternative approximate
+    nearest neighbor search rather than using $\alpha > 1$. Again,
+    record the average query time and average distance over the test
+    set, and explain the trends found.
+  \end{enumerate}
+
+  \solution
+
+  \begin{enumerate}[(a)]
+  	\item 
+  \end{enumerate}
+\end{homeworkProblem}
+
+
+\begin{homeworkProblem}
+	{\bf The Clustering Toolkit: K-Means and EM}
+	\\
+	\\In this problem, you will implement the k-means algorithm and EM to fit a Gaussian Mixture Model (GMM). This problem consists of 3 parts. In part 1, you will implement the two clustering algorithms and
+	evaluate on a 2D synthetic dataset. In part 2, we will provide you
+	with a small text dataset (from the BBC). Your task is to 
+	implement (or reuse) the same algorithms to cluster the documents. In the last part, you will implement the k-means 
+	algorithm in Hadoop MapReduce, and test your algorithm against a
+	subset of a Wikipedia dataset.
+	\\
+	\\{\bf 1. 2D synthetic data}
+	\\
+	\\The k-means algorithm is an intuitive way to explore the structure
+	of a dataset. Suppose we are given points $x^{1}$, ..., $x^{n}$ $\in R^{2}$
+	and an integer $K > 1$, and our goal is to minimize the within-cluster sum of squares
+	\[
+	J(\mu,\mathcal{Z})=\sum_{i=1}^{n}\left\|x^{i}-\mu_{z^{i}}\right\|_2^2,
+	\]
+	where $\mu=(\mu_{1},...,\mu_{K})$ are the cluster centers with the same
+	dimension of data points, and $\mathcal{Z}=(z^{1},...,z^{n})$ are the cluster
+	assignments, $z^{i}\in\{1,...,K\}$. One common algorithm for finding an 
+	approximate solution is Lloyd's algorithm. To apply the 
+	Lloyd's k-means algorithm one takes a guess at the number of clusters 
+	(i.e., select a value for $K$) and initializes cluster centers $\mu_1,\ldots,\mu_K$ by 
+	picking $K$ points (often randomly from $x^{1},...,x^{n}$).
+	In practice, we often repeat multiple runs of Lloyd's algorithm with
+	different initializations, and pick the best resulting 
+	clustering in terms of the k-means objective. The algorithm then proceeds
+	by iterating through two steps:
+
+	\begin{itemize}
+	\item[i.] Keeping $\mu$ fixed, find the cluster classification $\mathcal{Z}$ to minimize
+	$J(\mu,\mathcal{Z})$ by assigning each point to the cluster to which it is closest. 
+
+	\item [ii.] Keeping $\mathcal{Z}$ fixed, find new centers of the clusters $\mu$ for
+	the $(m+1)^{th}$ step to minimize $J(\mu,\mathcal{Z})$ by averaging points within
+	a cluster from the points in a cluster at the $m^{th}$ step.
+	\end{itemize}
+
+	Terminate the iteration to settle on $K$ final clusters if applicable.
+
+	\begin{enumerate}[(a)]
+		\item Assuming that the tie-breaking rule used in step (i) is consistent,
+		does Lloyd's algorithm always converge in a finite number of steps?
+		Briefly explain why.
+
+		\item Implement Lloyd's algorithm on the two dimensional data points
+		in data file ``2DGaussianMixture.csv''. Run it with some of your randomly
+		chosen initialization points with different values of $K \in \{2, 3,
+		5, 10,15, 20\}$, and show the clustering plots by color. 
+
+		\item Implement Lloyd\textquoteright{}s algorithm. Run it 20 times,
+		each time with different initialization of $K$ cluster centers picked
+		at random from the set $\{x^{1},...,x^{n}\}$, with $K = 3$ clusters,
+		on the two dimensional data points in data file 2DGaussianMixture.csv (Link is the ``Synthetic Data'' in the homework section). 
+		Plot in a single figure the original data (in gray), and all $20\times3$
+		cluster centers (in black) given by each run of Lloyd\textquoteright{}s
+		algorithm. Also, compute the minimum, mean, and standard deviation of the within-cluster
+		sums of squares for the clusterings given by each of the 20 runs.
+
+		\item  K-means++ is another initialization algorithm for K-means (by David
+		Arthur and Sergei Vassilvitskii). The algorithm proceeds as follows:
+		\begin{itemize}
+			\item [i.] Pick the first cluster center $\mu_{1}$ uniformly at random from
+			the data $x^{1},...,x^{n}$. 
+			\item [ii.] For $j=2,...,K:$ 
+				\begin{itemize}
+				\item For each data point, compute its distance $D_{i}$ to the nearest
+				cluster center picked in a previous iteration:
+			\[
+			D_{i}=\min_{j^{\prime}=1,...,j-1}\left\Vert x^{i}-\mu_{j^{\prime}}\right\Vert .
+			\]
+				\item Pick the cluster center $\mu_{j}$ at random from $x^{1},...,x^{n}$
+				with probabilities proportional to $D_{1}^{2},...,D_{n}^{2}$. 
+				\end{itemize}
+			\item [iii.] Return $\mu$ as the initial cluster assignments for Lloyd\textquoteright{}s
+			algorithm.
+		\end{itemize}  
+		Replicate Part (c) using k-means++ as the initialization
+		algorithm, instead of picking $\mu$ uniformly at random.
+
+		\item Based on your observations in Part (c) and Part (d), is Lloyd's algorithm
+		sensitive to initialization? 
+
+		\item One shortcoming of k-means is that one has to specify the value
+		of $K$. Consider the following strategy for picking $K$ automatically:
+		try all possible values of $K$ and choose $K$ that minimizes $J(\mu,\mathcal{Z})$.
+		Argue why this strategy is a good/bad idea. Suggest an alternative
+		strategy.
+
+		\item The two-dimensional real data in the file ``2DGaussianMixture.csv''
+		are generated from a mixture of Gaussians with three components. Implement
+		EM for general mixtures of Gaussians (not just k-means).  Initialize
+		the means with the same procedure as in the k-means++ case.
+		Initialize the covariances with the identity matrix.  Run your
+		implementation on the synthetic dataset, and: 
+		\begin{enumerate}
+
+			\item Plot the likelihood of the data over EM iterations.  
+
+			\item After convergence, plot the data, with the most likely
+			   cluster assignment of each data point indicated by its color.  Mark
+			   the mean of each Gaussian and draw the covariance ellipse for each Gaussian.  
+
+			\item How do these results compare to those obtained by k-means?  Why?
+
+		\end{enumerate}
+
+	\end{enumerate}
+
+	\solution 
+
+
+
+	{\bf 2. Clustering the BBC News  [20 Points]}
+	\\
+	The dataset we will consider comes from the BBC (http://mlg.ucd.ie/datasets/bbc.html).
+	The preprocessed dataset consists of the term-document frequency of 99 vocabulary and 1791 documents chosen from 5 categories: business, entertainment, politics, sport and tech.
+
+	From lecture, we learned that the term frequency vector is not a good metric because of its biases to frequent terms. 
+	Your first task is to convert the term frequency into tfidf using the following equations:
+
+	\begin{eqnarray}
+	  \text{tf}(t, d) &=&   \frac{f(t,d)}{max \{f(w,d): (w \in d)\}} \\
+	  \text{idf}(t, D) &=&  \log \frac{|D|}{|\{d \in D : t \in d\}|} \\
+	  \text{tfidf}(t,d,D) &=& tf (t,d) \times idf(t,D)
+	\end{eqnarray}
+	\begin{enumerate}[(a)]
+	  \item Convert the term-doc-frequency matrix into a term-doc-tfidf matrix.
+	    For each term $t$, take the average tfidf over each class $C_i
+	    =\{\mbox{documents in class $i$}\}$: 
+	    \[
+	    \text{avg\_tfidf} (t, C_i, D) = \frac{1}{|C_i|}\sum_{d \in C_i} \text{tfidf}(t,d,D)
+	    \] 
+	    \textbf{For each class $C_i$, report the 5 terms with the highest $AvgTfidf$ for the class (e.g Tech: spywar:0.69, aol:0.58, $\dots$ Business: $\dots$).} 
+
+	  \item Run k-means with $K = 5$ for 5 iterations, using the centers in ``*.centers'' for initialization.\\
+	    \textbf{Plot the classification error (0/1 loss) versus the number
+	      of iterations.}  \emph{Note: Don't use the optimal mapping
+	      procedure from the previous question; you should keep the
+	      class ids as they were in the initialization file.}
+
+	  \item Run EM with $K = 5$ for 5 iterations. Using ``*.centers'' as the mean and identity as the covariance of the initial clusters. Initialize $\pi_{1,\dots,K}$ uniformly.\\
+	    You need to be careful when updating the covariance matrix $\Sigma_k$ during the M-step. In particular, the MLE can be ill-conditioned because the data is sparse. To handle this case,
+	    we can perform a shrinkage on the MLE: $\hat{\Sigma} =  (1-\lambda)\hat{\Sigma}_{MLE} + \lambda I$, which is equivalent to a MAP estimate of the posterior distribution with some prior.
+	    In this problem, please use $\lambda = 0.2$. \\
+	    \textbf{Plot the classification error (0/1 loss) versus number of iterations.} \\
+	    \textbf{Plot the log-likelihood versus the number of iterations.}
+	\end{enumerate}
+
+	\solution
+
+	{\bf 3. Scaling up K-Means with MapReduce  [35 Points]}
+	\\
+
+	The k-means algorithm fits naturally in the MapReduce Framework. Specifically, each iteration of k-means corresponds to one MapReduce cycle: 
+	\begin{itemize}
+	  \item The map function maps each document with key being the cluster id.
+	  \item During the shuffling phase, each documents with the same cluster id will be sent to the same reducer.
+	  \item The reduce function reduces on the clusterid and updates the cluster center.
+	\end{itemize}
+
+	Because we do not have the ground truth labels for this dataset, the evaluation will be done on the k-means objective function:
+	\begin{eqnarray}
+	  J(\mathcal{Z},\mu) &=&  \sum_{i=1}^N  \|x^i - \mu_{z^i}\|_2^2 \\
+	  (\mathcal{Z}^*, \mu^*) &=& \arg\min_{\mathcal{Z}, \mu} J(\mathcal{Z},\mu)
+	\end{eqnarray}
+	where $z^i$ is the cluster assignment of example $i$, $\mu_j$ is the center of cluster $j$. 
+
+	To get the value of $J(\mathcal{Z},\mu)$ for each iteration, the reducer with key $j$ will also compute and output the sum of the squares of $L_2$ distance in cluster $j$. At the end of each iteration, you can examine the mean and standard deviation of the clusters. 
+
+	Run k-means with $K = 20$ for 5 iterations. Use the initial cluster centers from ``center0.txt''.
+	\begin{enumerate}
+	  \item  \textbf{Plot the objective function value $J(\mathcal{Z},\mu)$  versus the number of iterations.}
+	  \item  \textbf{For each iteration, report mean (top 10 words in tfidf) of the largest 3 clusters  (by total squared $L_2$ distance). (Use the printClusters function in the starter code.)}
+	  % \item  \textbf{Assuming you have 64 machines, without
+	  %   actually running experiments, try to estimate the relative runtime
+	  %   among $K = 10, 100, 10000$. What is the bottleneck of each
+	  %   setting?}
+	 
+	\end{enumerate}
+
 \end{homeworkProblem}
 
 \end{document}
