@@ -290,9 +290,46 @@ I collaborated with Weston Barger and Emily Dinan on ***
 
   \begin{enumerate}[(a)]
   	\item 
+  	\begin{table}[h]
+  		\centering
+  		\begin{tabular}{|c|c|c|}
+  		    {\bf Number of projections} & {\bf Average query time (s)} & {\bf Average distance to NN}\\ \hline
+  		    5		&0.482571		&4.832050		\\ \hline
+  		    10		&0.105674		&5.356869		\\ \hline
+  		    20		&0.054416		&\infty		\\ \hline
+  		\end{tabular}
+  		\caption{Statistics for approximate nearest neighbor search using a location sensitive hash table with different numbers of projections.}
+  		\label{tab:lsh}
+  	\end{table}
+
+  	\begin{table}[h]
+  		\centering
+  		\begin{tabular}{|c|c|}
+  		    {\bf $\alpha$} & {\bf Average query time} & {\bf Average distance to NN}\\ \hline
+  		    1		&		\\ \hline
+  		    5		&		\\ \hline
+  		    10		&		\\ \hline
+  		\end{tabular}
+  		\caption{Statistics for approximate nearest neighbor search using a KD-tree different pruning parameters $\alpha$.}
+  		\label{tab:kdtree}
+  	\end{table}
+
+  	Tables \ref{tab:lsh} and \ref{tab:kdtree} show the average query times and average distances to the approximate nearest neighbors for the locality sensitive hashing and KD-tree implementations of the approximate nearest neighbor problem, respectively.
+
+  	\item
+  	\begin{table}[h]
+  		\centering
+  		\begin{tabular}{|c|c|c|}
+  		    {\bf Number of projections} & {\bf Average query time (s)} & {\bf Average distance to NN}\\ \hline
+  		    5		&0.003674		&7.391327		\\ \hline
+  		    10		&0.074750		&7.117428		\\ \hline
+  		    20		&1.420972		&6.301496		\\ \hline
+  		\end{tabular}
+  		\caption{Statistics for approximate nearest neighbor search using Gaussian random projections with different numbers of projections fed into a KD-tree.}
+  		\label{tab:lsh}
+  	\end{table}
   \end{enumerate}
 \end{homeworkProblem}
-
 
 \begin{homeworkProblem}
 	{\bf The Clustering Toolkit: K-Means and EM}
