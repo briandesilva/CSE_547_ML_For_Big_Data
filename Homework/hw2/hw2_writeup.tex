@@ -235,8 +235,9 @@ I collaborated with Weston Barger and Emily Dinan on ***
 		\Pr\left(\left|u\cdot v-\phi(u)\cdot\phi(v) \right| \leq \epsilon \right) \leq 4e^{-(\epsilon^2-\epsilon^3)m/4}.
 	\end{align*}
 \end{homeworkProblem}
+\newpage
 
-
+% Problem 2
 \begin{homeworkProblem}
   {\bf KD-Trees and LSH for Approximate Neighbor Finding [15 Points]}
   \\
@@ -292,11 +293,11 @@ I collaborated with Weston Barger and Emily Dinan on ***
   	\item 
   	\begin{table}[h]
   		\centering
-  		\begin{tabular}{|c|c|c|}
+  		\begin{tabular}{|c|c|c|}\hline
   		    {\bf Number of projections} & {\bf Average query time (s)} & {\bf Average distance to NN}\\ \hline
   		    5		&0.482571		&4.832050		\\ \hline
   		    10		&0.105674		&5.356869		\\ \hline
-  		    20		&0.054416		&\infty		\\ \hline
+  		    20		&0.054416		&$\infty$		\\ \hline
   		\end{tabular}
   		\caption{Statistics for approximate nearest neighbor search using a location sensitive hash table with different numbers of projections.}
   		\label{tab:lsh}
@@ -304,30 +305,36 @@ I collaborated with Weston Barger and Emily Dinan on ***
 
   	\begin{table}[h]
   		\centering
-  		\begin{tabular}{|c|c|}
+  		\begin{tabular}{|c|c|c|}\hline
   		    {\bf $\alpha$} & {\bf Average query time} & {\bf Average distance to NN}\\ \hline
-  		    1		&		\\ \hline
-  		    5		&		\\ \hline
-  		    10		&		\\ \hline
+  		    1		&63.911429	&4.455368		\\ \hline
+  		    5		&22.306609	&4.782051		\\ \hline
+  		    10		&19.210534	&4.852166		\\ \hline
   		\end{tabular}
   		\caption{Statistics for approximate nearest neighbor search using a KD-tree different pruning parameters $\alpha$.}
   		\label{tab:kdtree}
   	\end{table}
 
-  	Tables \ref{tab:lsh} and \ref{tab:kdtree} show the average query times and average distances to the approximate nearest neighbors for the locality sensitive hashing and KD-tree implementations of the approximate nearest neighbor problem, respectively.
+  	Tables \ref{tab:lsh} and \ref{tab:kdtree} show the average query times and average distances to the approximate nearest neighbors for the locality sensitive hashing and KD-tree implementations of the approximate nearest neighbor problem, respectively. As expected, the average query time using a locality sensitive hash table is {\it much} faster than that of the KD-tree. However, the KD-tree finds closer points to the input points on average. For $\alpha=1$ this is to be expected since it finds the actual nearest neighbor. As $\alpha$ is increased the query time decreases as the tree can prune more aggressively, but the quality of the neighbor is diminished marginally.
+
+  	For the implementation involving locality sensitive hashing, the average query time decreases as a function of the number of projections used. This is because if one uses $m$ projections, then one has $2^m$ bins in which to place objects. If $m$ is small then there are many fewer bins than there are objects in the training set, so bins can contain a large number of objects. For a fixed depth, when a query is made one has to search a fixed number of bins for a nearest neighbor. If each of these bins contains many objects then the time one must spend checking them for nearest neighbors grows (since one must compute the distance between the reference object and each of the objects in these bins). If we use more projections there are more bins over which the objects are distributed, so each bin contains fewer objects on average. This leads to faster query times on average.
+
+  	The average distance to the returned nearest neighbor grows with the number of projections for the LSH implementation. This can be explained by similar reasoning to before. For small $m$ lots of objects fall in the same bin. When we look for a nearest neighbor we are likely to search over a larger set of objects, often allowing us to find one that is closer to the reference object than we would have found for a larger value of $m$. Note that for $m=20$ the average distance to the nearest neighbor is $\infty$. The $\infty$ just means that for at least one reference point, no nearest neighbor was located (using a depth of 3). This is because there are $2^20$ bins, while only 100000 training objects (so there are about 10 times as many bins as objects). Many bins will be empty. There is some object in the test set which gets mapped to a bin with no nonempty bins within a distance of 3 of it (using Hamming-distance). If we were to increase the depth above 3 it is possible that a neighbor would be found.
 
   	\item
   	\begin{table}[h]
   		\centering
-  		\begin{tabular}{|c|c|c|}
+  		\begin{tabular}{|c|c|c|} \hline
   		    {\bf Number of projections} & {\bf Average query time (s)} & {\bf Average distance to NN}\\ \hline
   		    5		&0.003674		&7.391327		\\ \hline
   		    10		&0.074750		&7.117428		\\ \hline
   		    20		&1.420972		&6.301496		\\ \hline
   		\end{tabular}
   		\caption{Statistics for approximate nearest neighbor search using Gaussian random projections with different numbers of projections fed into a KD-tree.}
-  		\label{tab:lsh}
+  		\label{tab:grp}
   	\end{table}
+  	Table \ref{tab:grp} gives the average query time and average distance over the test set using Gaussian random projections. The first observation to make is that the average query time grows with the number of projections used. The number of projections is the dimension of the data points inserted into the KD-tree. Lookups become much slower for KD-trees containing higher dimensional objects, which explains this trend in the average query time. The average distance to the nearest neighbor that is returned decreases as the number of projections increases. This is because the more random projections that are used the more information about the original object that is captured. Given a reference object the KD-tree will return its true nearest neighbor {\it with respect to their representations in the projected space}. Consider the extreme case where only one projection is used. The KD-tree will compute distances between 1-dimensional scalars which are proxies for the true $d$-dimensional objects. If $d$ is large then much information is lost when projecting these objects down to 1 dimension. As the dimension of the projected space grows we expect to capture more and more information about the original objects. Thus the KD-tree is better able to find nearest neighbors using these richer (higher-dimensional) representations than the lower-dimensional ones.
+
   \end{enumerate}
 \end{homeworkProblem}
 

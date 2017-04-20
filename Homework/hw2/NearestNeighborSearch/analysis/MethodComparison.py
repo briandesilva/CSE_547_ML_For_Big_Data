@@ -85,7 +85,7 @@ def test_kd_tree(train_docs, test_docs, D, alphas):
 	print "Forming KD-tree"
 	tree = KDTree(D)
 	for i, document in train_docs.iteritems():
-		key = [document.get(idx) for idx in xrange(0, D)]
+		key = [document.get(idx,0) for idx in xrange(0, D)]
 		tree.insert(key, i)
 	print "Done"
 
@@ -96,12 +96,12 @@ def test_kd_tree(train_docs, test_docs, D, alphas):
 		start_time = time.clock()
 		cum_dist = 0.0
 		for i, test_doc in test_docs.iteritems():
-			key = [test_doc.get(idx) for idx in xrange(0, D)]
+			key = [test_doc.get(idx,0) for idx in xrange(0, D)]
 			doc_id = tree.nearest(key, alpha)
-			cum_dist += EvalUtil.distance(test_doc, test_docs[doc_id])
+			cum_dist += EvalUtil.distance(test_doc, train_docs[doc_id])
 		duration = time.clock() - start_time
 		times.append(TestResult("KDTree", n, D, alpha, duration / n, cum_dist / n))
-		print "Average distance: %f" %(cum_distance / n)
+		print "Average distance: %f" %(cum_dist / n)
 		print "Average time: %f\n" %(duration / n)
 	return times
 
