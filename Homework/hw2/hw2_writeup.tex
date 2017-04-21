@@ -368,14 +368,14 @@ I collaborated with Weston Barger and Emily Dinan on ***
 	clustering in terms of the k-means objective. The algorithm then proceeds
 	by iterating through two steps:
 
-	\begin{itemize}
-	\item[i.] Keeping $\mu$ fixed, find the cluster classification $\mathcal{Z}$ to minimize
+	\begin{enumerate}[(i)]
+	\item Keeping $\mu$ fixed, find the cluster classification $\mathcal{Z}$ to minimize
 	$J(\mu,\mathcal{Z})$ by assigning each point to the cluster to which it is closest. 
 
-	\item [ii.] Keeping $\mathcal{Z}$ fixed, find new centers of the clusters $\mu$ for
+	\item Keeping $\mathcal{Z}$ fixed, find new centers of the clusters $\mu$ for
 	the $(m+1)^{th}$ step to minimize $J(\mu,\mathcal{Z})$ by averaging points within
 	a cluster from the points in a cluster at the $m^{th}$ step.
-	\end{itemize}
+	\end{enumerate}
 
 	Terminate the iteration to settle on $K$ final clusters if applicable.
 
@@ -400,10 +400,10 @@ I collaborated with Weston Barger and Emily Dinan on ***
 
 		\item  K-means++ is another initialization algorithm for K-means (by David
 		Arthur and Sergei Vassilvitskii). The algorithm proceeds as follows:
-		\begin{itemize}
-			\item [i.] Pick the first cluster center $\mu_{1}$ uniformly at random from
+		\begin{enumerate}[(i)]
+			\item Pick the first cluster center $\mu_{1}$ uniformly at random from
 			the data $x^{1},...,x^{n}$. 
-			\item [ii.] For $j=2,...,K:$ 
+			\item For $j=2,...,K:$ 
 				\begin{itemize}
 				\item For each data point, compute its distance $D_{i}$ to the nearest
 				cluster center picked in a previous iteration:
@@ -413,9 +413,9 @@ I collaborated with Weston Barger and Emily Dinan on ***
 				\item Pick the cluster center $\mu_{j}$ at random from $x^{1},...,x^{n}$
 				with probabilities proportional to $D_{1}^{2},...,D_{n}^{2}$. 
 				\end{itemize}
-			\item [iii.] Return $\mu$ as the initial cluster assignments for Lloyd\textquoteright{}s
+			\item Return $\mu$ as the initial cluster assignments for Lloyd\textquoteright{}s
 			algorithm.
-		\end{itemize}  
+		\end{enumerate}  
 		Replicate Part (c) using k-means++ as the initialization
 		algorithm, instead of picking $\mu$ uniformly at random.
 
@@ -450,8 +450,43 @@ I collaborated with Weston Barger and Emily Dinan on ***
 
 	\solution 
 
+	\begin{enumerate}[(a)]
+		\item Yes, assuming a consistent deterministic tie-breaking rule is used, Lloyd's algorithm will always converge in a finite number of steps. Note that there are only a finite number of ways to group the data points into $K$ clusters. These groupings completely determine the associated means. Further, observe that each step of Lloyd's algorithm which assigns at least one point to a new cluster decreases the value of $J(\mu,\mathcal{Z})$. Since there are only finitely many ways to assign the points to clusters, $J(\mu,\mathcal{Z})$ can only be decreased a finite number of times. Assuming a consistent deterministic tie-breaking rule is used to assign points equidistant from two cluster centers to clusters, once $J(\mu,\mathcal{Z})$ stops decreasing the algorithm will stop reassiging points to new clusters.
 
+		\item
+		\begin{figure}
+			\centering
+			\begin{subfigure}[b]{0.32\textwidth}
+				\centering
+				\includegraphics[width=.95\linewidth]{figures/kmeans_2-3b_k2}
+			\end{subfigure}
+			\begin{subfigure}[b]{0.32\textwidth}
+				\centering
+				\includegraphics[width=.95\linewidth]{figures/kmeans_2-3b_k3}
+			\end{subfigure}
+			\begin{subfigure}[b]{0.32\textwidth}
+				\centering
+				\includegraphics[width=.95\linewidth]{figures/kmeans_2-3b_k5}
+			\end{subfigure}
+			\begin{subfigure}[b]{0.32\textwidth}
+				\centering
+				\includegraphics[width=.95\linewidth]{figures/kmeans_2-3b_k10}
+			\end{subfigure}
+			\begin{subfigure}[b]{0.32\textwidth}
+				\centering
+				\includegraphics[width=.95\linewidth]{figures/kmeans_2-3b_k15}
+			\end{subfigure}
+			\begin{subfigure}[b]{0.32\textwidth}
+				\centering
+				\includegraphics[width=.95\linewidth]{figures/kmeans_2-3b_k20}
+			\end{subfigure}
+			\caption{Clusters determined by K-means applied to the 2D data from {\tt 2DGaussianMixture.csv} for $K=2,3,5,10,15,20$}.
+			\label{fig:kmeans3b}
+		\end{figure}
 
+	\end{enumerate}
+
+	
 	{\bf 2. Clustering the BBC News  [20 Points]}
 	\\
 	The dataset we will consider comes from the BBC (http://mlg.ucd.ie/datasets/bbc.html).
