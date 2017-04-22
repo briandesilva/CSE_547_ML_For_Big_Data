@@ -480,9 +480,38 @@ I collaborated with Weston Barger and Emily Dinan on ***
 				\centering
 				\includegraphics[width=.95\linewidth]{figures/kmeans_2-3b_k20}
 			\end{subfigure}
-			\caption{Clusters determined by K-means applied to the 2D data from {\tt 2DGaussianMixture.csv} for $K=2,3,5,10,15,20$}.
+			\caption{Clusters determined by K-means applied to the 2D data from {\tt 2DGaussianMixture.csv} for $K=2,3,5,10,15,20$.}
 			\label{fig:kmeans3b}
 		\end{figure}
+    Figure \ref{fig:kmeans3b} shows the clusterings generated using various values of $K$.
+
+    \item 
+    \begin{figure}
+      \centering
+      \includegraphics[width=.55\textwidth]{figures/kmeans_2-3c_centers}
+      \caption{The centers (denoted by `x') generated during 20 runs of Lloyd's algorithm with random initializations.} 
+      \label{fig:kmeans_2-3c_centers}
+    \end{figure}
+
+    Figure \ref{fig:kmeans_2-3c_centers} visualizes the centers chosen by the 20 runs of Lloyd's algorithm with random initializations. The minimum, mean, and standard deviation of the within-cluster sums of squares for the 20 runs were 6.184172, 8.340745, and 3.735294, respectively.
+
+    \item 
+    \begin{figure}
+      \centering
+      \includegraphics[width=.55\textwidth]{figures/kmeans_2-3d_centers}
+      \caption{The centers (denoted by `x') generated during 20 runs of Lloyd's algorithm with K-means++ initializations.} 
+      \label{fig:kmeans_2-3d_centers}
+    \end{figure}
+
+    Figure \ref{fig:kmeans_2-3d_centers} shows the centers chosen by the 20 runs of Lloyd's algorithm with centers initialized with K-means++. The minimum, mean, and standard deviation of the within-cluster sums of squares for the 20 runs were 6.184172, 7.046801, and 2.587888, respectively.
+
+    \item It seems that Lloyd's algorithm is sensitive to initialization. The K-means++ initialization procedure produced better results on average than the random initialization.
+
+    \item This is a bad strategy because the larger $K$ gets the smaller $J(\mathcal{Z},\mu)$ can get. With lots of centers it becomes easy to place centers very close to all the points. In the extreme case where $K$ is equal to the number of points, $J(\mathcal{Z},\mu)$ can be made to be 0 by choosing each point as a center. On the other hand, $K=1$, the center will be the mean of all the points and $J(\mathcal{Z},\mu)$ will be large unless the points are all very close together to begin with.
+
+    A better strategy would be to experiment with a range of reasonable values of $K$ and track how robust each is to differences in initialization. For each $K$ would could run K-means multiple times on the same data set (using different initializations of the centers) and track how different the resulting clusters are between runs. One could track the similarity of clusters either by checking how similar the clusters are to one-another from run to run, or perhaps by observing fluctuations in $J(\mathcal{Z},\mu)$. If one has selected a ``good'' value of $K$ we might expect the algorithm to output somewhat similar clusters each time it is run. Thus we could select the value of $K$ for which the clusters output by K-means showed the most robustness.
+
+    \item 
 
 	\end{enumerate}
 
