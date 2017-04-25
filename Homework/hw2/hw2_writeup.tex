@@ -434,7 +434,7 @@ I collaborated with Weston Barger and Emily Dinan on ***
 		the means with the same procedure as in the k-means++ case.
 		Initialize the covariances with the identity matrix.  Run your
 		implementation on the synthetic dataset, and: 
-		\begin{enumerate}
+		\begin{enumerate}[(i)]
 
 			\item Plot the likelihood of the data over EM iterations.  
 
@@ -511,14 +511,36 @@ I collaborated with Weston Barger and Emily Dinan on ***
 
     A better strategy would be to experiment with a range of reasonable values of $K$ and track how robust each is to differences in initialization. For each $K$ would could run K-means multiple times on the same data set (using different initializations of the centers) and track how different the resulting clusters are between runs. One could track the similarity of clusters either by checking how similar the clusters are to one-another from run to run, or perhaps by observing fluctuations in $J(\mathcal{Z},\mu)$. If one has selected a ``good'' value of $K$ we might expect the algorithm to output somewhat similar clusters each time it is run. Thus we could select the value of $K$ for which the clusters output by K-means showed the most robustness.
 
-    \item 
+    \item My implementation of EM for GMMs terminated after the log-likelihood failed to change by more than $10^{-6}$ between successive iterations.
+    \begin{enumerate}[(i)]
+      \item 
+      \begin{figure}
+        \centering
+        \includegraphics[width=.55\textwidth]{figures/EM_likelihood_2-3g}
+        \caption{The log-likelihood of the data as a function of EM iterations.} 
+        \label{fig:EM_likelihood_2-3g}
+      \end{figure}
+      Figure \ref{fig:EM_likelihood_2-3g} shows the {\bf log-likelihood} of the data over EM iterations.
+
+      \item
+      \begin{figure}
+        \centering
+        \includegraphics[width=.55\textwidth]{figures/EM_2-3g}
+        \caption{The most likely cluster assignments after termination of the EM algorithm. The means of the clusters are denoted by `x.' The 95\% confidence intervals are shown as solid curves.} 
+        \label{fig:EM_2-3g}
+      \end{figure}
+      Figure \ref{fig:EM_2-3g} plots the most likely cluster assignments of the data points along with the cluster centers and the covariance ellipses for each Gaussian.
+
+      \item This algorithm performed slightly better than K-means with the correct value of $K$ (see the $K=3$ plot of Figure \ref{fig:kmeans3b}). This is because the two points which K-means misclassifies are both technically closer to the wrong center. K-means does not take the distribution of same-cluster points into account. Since GMM does, it correctly classifies the points. Based on the covariance ellipses shown in Figure \ref{fig:EM_2-3g}, it is much more clear that these two points belong in the cluster on the left rather than the one on the right. Since the GMM algorithm takes this into account, it puts the points in their correct cluster.
+    \end{enumerate}
+
 
 	\end{enumerate}
 
 	
 	{\bf 2. Clustering the BBC News  [20 Points]}
 	\\
-	The dataset we will consider comes from the BBC (http://mlg.ucd.ie/datasets/bbc.html).
+	The dataset we will consider comes from the BBC (\url{http://mlg.ucd.ie/datasets/bbc.html}).
 	The preprocessed dataset consists of the term-document frequency of 99 vocabulary and 1791 documents chosen from 5 categories: business, entertainment, politics, sport and tech.
 
 	From lecture, we learned that the term frequency vector is not a good metric because of its biases to frequent terms. 
@@ -553,6 +575,55 @@ I collaborated with Weston Barger and Emily Dinan on ***
 	\end{enumerate}
 
 	\solution
+
+  \begin{enumerate}[(a)]
+    \item 
+      \begin{table}[h]
+        \centering
+        \begin{tabular}{|c|c||c|c||c|c||c|c||c|c|} \hline
+            {\bf Class 0} & & {\bf Class 1} &  & {\bf Class 2} & & {\bf Class 3} & & {\bf Class 4}   \\ \hline
+            wider &     0.7317  & publish     & 0.5767  & misdirect &   0.8668  & venic  &        0.7518  &   spywar  & 0.5942  \\ \hline
+            observ  &   0.6131  &   paramount & 0.5519  & float &       0.5538  & seychel &       0.4871  &   aol & 0.5685  \\ \hline
+            decid &     0.4212  &   kelli     & 0.5211  & gerhard &     0.4623  & shoe  &         0.4553  &   175 & 0.4589  \\ \hline
+            stabilis  & 0.2782  &   hodgson   & 0.5054  & beith &       0.4221  & vicechairman  & 0.3791  &   xbox  & 0.3765  \\ \hline
+            unit  &     0.2688  &   coldplai  & 0.4762  & reimburs  &   0.4221  & coral &         0.3094  &   restat  & 0.3467  \\ \hline
+        \end{tabular}
+      \caption{The five terms with the highest average tf-idf for each of the five classes in the BBC dataset.}
+      \label{tab:avg_tfidf}
+    \end{table}
+
+    The terms with the highest average tf-idf scores for the five classes are given in Table \ref{tab:avg_tfidf}.
+
+    \item 
+    \begin{figure}
+      \centering
+      \includegraphics[width=.55\textwidth]{figures/kmeans_2-3-2b}
+      \caption{The 0/1 loss as a function of iterations of K-means with $K=5$ (BBC data)}
+      \label{fig:kmeans_2-3-2b}
+    \end{figure}
+    Figure \ref{fig:kmeans_2-3-2b} plots the classification error for this dataset using K-means with $K=5$ and initial means given in the {\tt bbc.centers} file.
+
+    \item 
+    \begin{figure}
+      \centering
+      \begin{subfigure}[b]{0.49\textwidth}
+        \centering
+        \includegraphics[width=.95\linewidth]{figures/EM_z1loss_2-3-2c}
+        \caption{The 0/1 loss as a function of iterations of EM for GMM}
+        \label{fig:EM_z1loss_2-3-2c}
+      \end{subfigure}
+      \begin{subfigure}[b]{0.49\textwidth}
+        \centering
+        \includegraphics[width=.95\linewidth]{figures/EM_likelihood_2-3-2c}
+        \caption{The log-likelihood as a function of iterations of EM for GMM}
+        \label{fig:EM_likelihood_2-3-2c}
+      \end{subfigure}
+      \caption{Some results from applying five iterations of EM for GMM to the BBC data.}
+    \end{figure}
+
+    Figure \ref{fig:EM_z1loss_2-3-2c} plots the 0/1 loss and Figure \ref{fig:EM_likelihood_2-3-2c} plots the log-likelihood over five iterations of EM applied to the BBC data.
+
+  \end{enumerate}
 
 	{\bf 3. Scaling up K-Means with MapReduce  [35 Points]}
 	\\

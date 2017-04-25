@@ -1,11 +1,12 @@
 # CSE 547 Homework 2
-# Problem 3 - K-means and EM
+# Problem 3.1 - K-means and EM on synthetic data
 # Brian de Silva
 
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from scipy.stats import multivariate_normal
+from scipy.io import mmread
 
 import pdb
 
@@ -40,19 +41,19 @@ def kmeans(numClasses,X,Mu=None,MAX_ITS=300):
 	X2 = np.sum(X**2,1)
 
 	# Iteratively update centers until convergence
-	for it in range(MAX_ITS):
+	for it in xrange(MAX_ITS):
 
 		# Compute quantities we can reuse
 		Mu2 = np.sum(Mu**2,1)
 
 		# Assign labels and get error (starts at iteration 0)
-		for k in range(N):
+		for k in xrange(N):
 			dists = Mu2 + X2[k] - 2. * Mu.dot(X[k,:])
 			Y[k] = np.argmin(dists)
 			reconErr2[it] += dists[Y[k]]
 
 		# Compute new centers
-		for k in range(numClasses):
+		for k in xrange(numClasses):
 			Mu[k,:] = np.mean(X[Y==k,:],0)
 
 		# Check if we should exit
@@ -104,12 +105,12 @@ def em_GMM(numClasses,X,Mu=None,TOL=1.e-6,MAX_ITS=300):
 	for it in xrange(MAX_ITS):
 
 		# Update likelihoods
-		for n in xrange(X.shape[0]):
+		for n in xrange(N):
 			for k in xrange(numClasses):
-				likelihood_matrix[n,k] = pi[k] * multivariate_normal.pdf(X[n,:],Mu[k,:],S[k])
+				likelihood_matrix[n,k] = pi[k] * multivariate_normal.pdf(X[n,:],mean=Mu[k,:],cov=S[k])
 		
 		# Store and check log-likelihood
-		log_like[it] = np.sum(np.log(np.sum(likelihood_matrix,0)))
+		log_like[it] = np.sum(np.log(np.sum(likelihood_matrix,1)))
 		if (it>0) and (np.abs(log_like[it] - log_like[it-1])) < TOL:
 			break
 
@@ -139,6 +140,7 @@ def em_GMM(numClasses,X,Mu=None,TOL=1.e-6,MAX_ITS=300):
 			for n in xrange(N):
 				S[k] += R[n,k] * np.outer(XMM[n,:],XMM[n,:])
 			S[k] /= Nk[k]
+
 		# Update responsibiliites
 		pi = Nk / N
 
@@ -212,19 +214,60 @@ def plot_gmm(numClasses,X,labels,Mu,S,save=False):
 
 	plt.xlabel('x1')
 	plt.ylabel('x2')
+	plt.title('EM for GMM')
 
 	# Plot the means
 	plt.plot(Mu[:,0],Mu[:,1],'kx')
 
 	# Plot the covariance ellipses
+	count = 0
+	for s in S:
+		w, V = np.linalg.eig(s)
+
+		# Determine the largest and smallest eigenvalues
+		largest_ew_ind = np.argmax(np.abs(w))
+		smallest_ew_ind = np.argmin(np.abs(w))
+
+		# Get the angle between the largest ev and the x1-axis
+		alpha = np.arctan2(V[1,largest_ew_ind],V[0,largest_ew_ind])
+
+		# Shift angle so it's in [0,2pi]
+		if alpha < 0:
+			alpha += 2 * np.pi
+
+		# Get the (axis-aligned) ellipse
+		chiSq_val = 2.4477
+		c1 = chiSq_val * np.sqrt(w[largest_ew_ind])
+		c2 = chiSq_val * np.sqrt(w[smallest_ew_ind])
+		z = np.stack((c1*np.cos(np.linspace(0,2*np.pi,200)), c2*np.sin(np.linspace(0,2*np.pi,200))),axis=0)
+
+		# Define a rotation matrix
+		Q = np.array([[np.cos(alpha), -np.sin(alpha)], [np.sin(alpha), np.cos(alpha)]])
+
+		# Rotate and shift the ellipse
+		ellipse = Mu[count,:].reshape(X.shape[1],1) + Q.dot(z)
+
+		# Plot
+		plt.plot(ellipse[0,:],ellipse[1,:])
+
+		count +=1
+
+	if save:
+		plt.savefig('figures/EM_2-3g.png')
+	plt.show()
 #----------------------------------------------------------------------------------------
 # 									Numerical tests
 #----------------------------------------------------------------------------------------
 
-# Read in the data
-data = pd.read_csv('2DGaussianMixture.csv').as_matrix()
-true_labels = data[:,0]
-X = data[:,1:]
+# -----------------------------------------------
+# 				Part 1 - Synthetic data
+# -----------------------------------------------
+
+
+# # Read in the data
+# data = pd.read_csv('2DGaussianMixture.csv').as_matrix()
+# true_labels = data[:,0]
+# X = data[:,1:]
 
 # ---------------------------
 # Part (b)
@@ -294,17 +337,20 @@ X = data[:,1:]
 # ---------------------------
 # Part (g)
 # ---------------------------
+# numClasses = 3
+# labels, mu, S, log_like = em_GMM(numClasses,X,kmeans_pp_init(numClasses,X))
 
-labels, mu, S, log_like = em_GMM(3,X,kmeans_pp_init(3,X))
-
-plot_clusters(3,X,labels,False)
-
-plt.show()
+# plot_gmm(numClasses,X,labels,mu,S,True)
+# plt.show()
 
 
-plt.figure()
-plt.plot(range(len(log_like)),log_like,'b-o')
-plt.xlabel('Iteration')
-plt.ylabel('Log likelihood')
-plt.title('Log likelihood as a function of iterations of EM')
-plt.show()
+# plt.figure()
+# plt.plot(range(len(log_like)),log_like,'b-o')
+# plt.xlabel('Iteration')
+# plt.ylabel('EM Log-likelihood')
+# plt.title('Log-likelihood as a function of iterations of EM')
+# plt.savefig('figures/EM_likelihood_2-3g.png')
+# plt.show()
+
+
+
