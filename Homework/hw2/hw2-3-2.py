@@ -9,7 +9,9 @@ from scipy.stats import multivariate_normal
 from scipy.io import mmread
 from scipy.stats import mode
 
+# Debugger
 import pdb
+
 
 
 #----------------------------------------------------------------------------------------
@@ -103,6 +105,7 @@ def em_GMM(numClasses,X,true_labels,Mu=None,TOL=1.e-6,MAX_ITS=300):
 	N = X.shape[0]						# Number of data points
 	Y = np.zeros(N).astype(int)			# Labels
 	log_like = np.zeros(MAX_ITS)		# Square reconstruction error
+	z1_loss = np.zeros(MAX_ITS)			# 0/1 loss
 	lambduh = 0.2						# Shrinkage parameter for covariance matrices
 
 	# Initialize centers as numClasses random points in data
@@ -156,7 +159,7 @@ def em_GMM(numClasses,X,true_labels,Mu=None,TOL=1.e-6,MAX_ITS=300):
 		# Map the k-means labels for each point to corresponding true labels
 		Y_mapped = meanLabels[Y]
 
-		# Get 0/1 loss
+		# Record 0/1 loss
 		z1_loss[it] = (1.0 * np.count_nonzero(Y_mapped - true_labels)) / N
 
 		# M step:
@@ -195,7 +198,8 @@ def em_GMM(numClasses,X,true_labels,Mu=None,TOL=1.e-6,MAX_ITS=300):
 
 # Read in the data
 f_mat = mmread('bbc_data/bbc.mtx').tocsr()			# term-document frequency matrix
-classes = pd.read_csv('bbc_data/bbc.classes',sep=' ',header=None).as_matrix()		# The document classes
+# classes = pd.read_csv('bbc_data/bbc.classes',sep=' ',header=None).as_matrix()		# The document classes
+classes = np.loadtxt('bbc_data/bbc.classes',delimiter=" ")
 file = open('bbc_data/bbc.terms','r')
 terms = file.read().splitlines()					# The terms for each row in f_mat
 file.close()
@@ -212,10 +216,10 @@ max_f = f_mat.max(axis=0).toarray()								# Max frequency of any word for each 
 tfidf = np.array(f_mat / max_f)									# Term frequency matrix
 D = f_mat.shape[1]												# Number of documents in corpus
 idf = np.array(np.log(D / np.sum(f_mat != 0.0, axis=1)))		# Inverse document frequency
-tfidf = tfidf * idf										# tf-idf
+tfidf = tfidf * idf												# tf-idf
 
 # Compute average tfidf across the classes
-numClasses = np.max(classes[:,1]) + 1
+numClasses = int(np.max(classes[:,1]) + 1)
 avg_tfidf = np.empty((tfidf.shape[0],numClasses))
 for ci in xrange(numClasses):
 	class_inds = (classes[:,1] == ci)
