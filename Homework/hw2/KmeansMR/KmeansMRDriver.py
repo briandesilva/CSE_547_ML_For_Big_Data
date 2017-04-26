@@ -7,8 +7,8 @@ import HDFSUtil
 
 
 # TODO: change these to work with your settings
-KMEANS_HDFS_PATH = "/user/xxx/kmeans"
-HADOOP_PREFIX = "/path/to/hadoop-1.2.1"
+KMEANS_HDFS_PATH = "/user/brian/kmeans"
+HADOOP_PREFIX = "/usr/local/hadoop-1.2.1"
 
 
 class KmeansMRDriver(object):

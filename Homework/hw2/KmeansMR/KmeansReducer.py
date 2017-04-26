@@ -23,9 +23,27 @@ class KmeansReducer:
 
     def reduce(self, uid, values):
         c = Cluster()
+        c.uid = uid
         sqdist = 0.0
-        # TODO: Put your code here!
+        average = {}
 
+        # Compute new center
+        count = 0
+        for value in values:
+            count +=1
+            for key, v in value.tfidf:
+                average[key] = average.get(key,0.0) + v
+
+        for key in average:
+            average[key] /= count
+
+
+        # Get within cluster distance
+        for value in values:
+            sqdist += distance(average,value.tfidf)
+
+        # Update the cluster center
+        c.tfidf = average
         # Output the cluster center into file: clusteri
         self.emit("cluster" + str(c.uid), str(c))
         # Output the within distance into file: distancei

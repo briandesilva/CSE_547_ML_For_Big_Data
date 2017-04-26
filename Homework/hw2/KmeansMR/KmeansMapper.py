@@ -46,7 +46,6 @@ class KmeansMapper:
 
     # Map each line (data point/value) to a key (cluster)
     def map(self, line):
-        # TODO: Your code goes here -- call `self.emit(key, value)`
         # Key is cluster - clusters stored in self.clusters
         # Value is the line
         dist = float("inft")
@@ -56,7 +55,7 @@ class KmeansMapper:
             if compute_distance(doc.tfidf,c.tfidf) < dist:
                 key = c.uid
 
-        self.emit(key,doc)
+        self.emit(key,str(doc))
 
 
 if __name__ == '__main__':
