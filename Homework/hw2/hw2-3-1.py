@@ -246,6 +246,7 @@ def plot_gmm(numClasses,X,labels,Mu,S,save=False):
 
 		# Rotate and shift the ellipse
 		ellipse = Mu[count,:].reshape(X.shape[1],1) + Q.dot(z)
+		
 
 		# Plot
 		plt.plot(ellipse[0,:],ellipse[1,:])

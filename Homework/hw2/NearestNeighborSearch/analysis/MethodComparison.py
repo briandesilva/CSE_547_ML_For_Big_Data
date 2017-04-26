@@ -121,7 +121,7 @@ if __name__ == '__main__':
     # Test the Locality Sensitive Hash Table on the Nearest neighbors problem
     # 
 
-    # Number of projections
+ # #    Number of projections
  #    m = [5, 10, 20]
 
  #    # Test LSH
