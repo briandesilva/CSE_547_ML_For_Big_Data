@@ -11,8 +11,8 @@ import HDFSUtil
 
 class KmeansMapper:
     def __init__(self):
-        self.K = int(os.environ.get("numClusters", 1))
-        self.iteration = int(os.environ.get("kmeansIter", 1))
+        self.K = int(os.environ.get("numClusters", 1))              # Number of clusters
+        self.iteration = int(os.environ.get("kmeansIter", 1))       # Which iteration we're on
         self.kmeans_hdfs_path = os.environ.get("kmeansHDFS")
         self.hadoop_prefix = os.environ.get("hadoopPrefix")
         self.clusters = []
@@ -44,9 +44,19 @@ class KmeansMapper:
         for line in data:
             self.map(line)
 
+    # Map each line (data point/value) to a key (cluster)
     def map(self, line):
         # TODO: Your code goes here -- call `self.emit(key, value)`
-        pass
+        # Key is cluster - clusters stored in self.clusters
+        # Value is the line
+        dist = float("inft")
+        key = -1
+        doc = Document(line)
+        for c in self.clusters:
+            if compute_distance(doc.tfidf,c.tfidf) < dist:
+                key = c.uid
+
+        self.emit(key,doc)
 
 
 if __name__ == '__main__':
