@@ -48,14 +48,14 @@ class KmeansMapper:
     def map(self, line):
         # Key is cluster - clusters stored in self.clusters
         # Value is the line
-        dist = float("inft")
+        dist = float("inf")
         key = -1
         doc = Document(line)
         for c in self.clusters:
-            if compute_distance(doc.tfidf,c.tfidf) < dist:
+            if MathUtil.compute_distance(doc.tfidf,c.tfidf) < dist:
                 key = c.uid
 
-        self.emit(key,str(doc))
+        self.emit(str(key),str(doc))
 
 
 if __name__ == '__main__':

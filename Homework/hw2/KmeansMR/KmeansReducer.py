@@ -11,7 +11,7 @@ import MathUtil
 
 
 class KmeansReducer:
-    """ Update the cluster center and compute the with-in class distances """
+    """ Update the cluster center and compute the within class distances """
 
     def emit(self, key, value, separator="\t"):
         """ Emit (key, value) pair to stdout for hadoop streaming """
@@ -22,6 +22,7 @@ class KmeansReducer:
             yield line.rstrip().split(separator, 1)
 
     def reduce(self, uid, values):
+        # values is a list of dictionaries?
         c = Cluster()
         c.uid = uid
         sqdist = 0.0
@@ -31,7 +32,8 @@ class KmeansReducer:
         count = 0
         for value in values:
             count +=1
-            for key, v in value.tfidf:
+            doc = Document(value)
+            for key, v in doc.tfidf:
                 average[key] = average.get(key,0.0) + v
 
         for key in average:
@@ -40,7 +42,8 @@ class KmeansReducer:
 
         # Get within cluster distance
         for value in values:
-            sqdist += distance(average,value.tfidf)
+            doc = Document(value)
+            sqdist += MathUtil.compute_distance(average,doc.tfidf)
 
         # Update the cluster center
         c.tfidf = average
