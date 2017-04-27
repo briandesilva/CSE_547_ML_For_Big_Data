@@ -33,7 +33,7 @@ class KmeansReducer:
         for value in values:
             count +=1
             doc = Document(value)
-            for key, v in doc.tfidf:
+            for key, v in doc.tfidf.items():
                 average[key] = average.get(key,0.0) + v
 
         for key in average:
