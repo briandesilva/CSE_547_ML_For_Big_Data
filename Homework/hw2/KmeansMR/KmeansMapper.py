@@ -23,7 +23,7 @@ class KmeansMapper:
 
     def emit(self, key, value, separator="\t"):
         """ Emit (key, value) pair to stdout for hadoop streaming """
-        #print >> sys.stderr, "emitting document: %s" % key
+        # print >> sys.stderr, "emitting document: %s" % key
         print '%s%s%s' % (key, separator, value)
 
     def main(self):
@@ -46,13 +46,16 @@ class KmeansMapper:
 
     # Map each line (data point/value) to a key (cluster)
     def map(self, line):
-        # Key is cluster - clusters stored in self.clusters
+        # Key is cluster id - clusters stored in self.clusters
         # Value is the line
         dist = float("inf")
-        key = -1
+        temp_dist = float("inf")
         doc = Document(line)
+        key = doc.uid
         for c in self.clusters:
-            if MathUtil.compute_distance(doc.tfidf,c.tfidf) < dist:
+            temp_dist = MathUtil.compute_distance(doc.tfidf,c.tfidf)
+            if temp_dist < dist:
+                dist = temp_dist
                 key = c.uid
 
         self.emit(str(key),str(doc))
@@ -61,3 +64,4 @@ class KmeansMapper:
 if __name__ == '__main__':
     mapper = KmeansMapper()
     mapper.main()
+

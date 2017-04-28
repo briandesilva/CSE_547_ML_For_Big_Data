@@ -6,7 +6,6 @@ from Cluster import Cluster
 import HDFSUtil
 
 
-# TODO: change these to work with your settings
 KMEANS_HDFS_PATH = "/user/brian/kmeans"
 HADOOP_PREFIX = "/usr/local/hadoop-1.2.1"
 
@@ -109,6 +108,8 @@ class KmeansMRDriver(object):
             c = Cluster()
             c.read(line)
             clusters.append(c)
+            print "Found cluster %d" %c.uid
+        print "Number of clusters found: %d" %len(clusters)
         return clusters
 
 
@@ -154,3 +155,18 @@ if __name__ == '__main__':
         driver.print_clusters(clusters)
         distances = driver.load_distance(outputpath + "/part-00000")
         driver.print_distances(distances)
+
+
+# Values of the objective function at each iteration
+# objvals = [143559.109398, 143369.591697, 143272.510368, 143185.946584, 143114.7753]
+
+# Commands to plot objective function:
+# import matplotlib.pyplot as plt
+# objvals = [143559.109398, 143369.591697, 143272.510368, 143185.946584, 143114.7753]
+# plt.plot(range(1,6),objvals,'b-o')
+# plt.xlabel('Iterations of K-means')
+# plt.ylabel('$J(Z,\mu)$')
+# plt.title('Objective Function $J(Z,\mu)$')
+# plt.show()
+
+

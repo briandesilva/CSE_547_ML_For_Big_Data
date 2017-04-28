@@ -652,8 +652,168 @@ I collaborated with Weston Barger and Emily Dinan on ***
 	  %   actually running experiments, try to estimate the relative runtime
 	  %   among $K = 10, 100, 10000$. What is the bottleneck of each
 	  %   setting?}
-	 
 	\end{enumerate}
+
+  \solution
+
+  \begin{enumerate}
+    \item 
+    \begin{figure}
+      \centering
+      \includegraphics[width=.75\textwidth]{figures/kmeans_2-4}
+      \caption{The value of the objective function $J(\mathcal{Z},\mu)$ as a function of the number of iterations of K-means using Hadoop.} 
+      \label{fig:kmeans_2-4}
+    \end{figure}
+
+    Figure \ref{fig:kmeans_2-4} plots the value of $J(\mathcal{Z},\mu)$ against the number of iterations.
+
+    \item 
+
+    \begin{table}
+      \centering
+      \begin{tabular}{|c|c|c|} \hline
+          {\bf Cluster 9 (982112)} & {\bf Cluster 12 (22697)} & {\bf Cluster 10 (17885)}\\ \hline
+          season      &   church      &   album       \\ \hline
+          family    &   college     &   released    \\ \hline
+          females   &   general     &   songs       \\ \hline
+          high      &   served      &   rock        \\ \hline
+          north     &   god         &   musical     \\ \hline
+          station   &   published   &   awards      \\ \hline
+          located   &   house       &   records     \\ \hline
+          club      &   students    &   featured    \\ \hline
+          second    &   family      &   concert     \\ \hline
+          well      &   member      &   group       \\ \hline
+      \end{tabular}
+      \caption{Top 10 words in tfidf of the largest three clusters after one iteration of K-means.}
+      \label{tab:iteration1}
+    \end{table}
+
+    \begin{table}
+      \centering
+      \begin{tabular}{|c|c|c|} \hline
+          {\bf Cluster 9 (98388)} & {\bf Cluster 12 (26008)} & {\bf Cluster 10 (12898)}\\ \hline
+          season    &   church      &   album       \\ \hline
+          family    &   college     &   released    \\ \hline
+          females   &   served      &   songs       \\ \hline
+          station   &   general     &   records     \\ \hline
+          north     &   published   &   rock        \\ \hline
+          high      &   house       &   musical     \\ \hline
+          located   &   appointed   &   featured    \\ \hline
+          system    &   member      &   awards      \\ \hline
+          club      &   students    &   chart       \\ \hline
+          group     &   royal       &   concert     \\ \hline
+      \end{tabular}
+      \caption{Top 10 words in tfidf of the largest three clusters after two iterations of K-means.}
+      \label{tab:iteration2}
+    \end{table}
+
+    \begin{table}
+      \centering
+      \begin{tabular}{|c|c|c|} \hline
+          {\bf Cluster 9 (97070)} & {\bf Cluster 12 (29055)} & {\bf Cluster 10 (10009)}\\ \hline
+          season    &   church      &   album       \\ \hline
+          females   &   college     &   released    \\ \hline
+          family    &   served      &   songs       \\ \hline
+          station   &   appointed   &   records     \\ \hline
+          north     &   member      &   rock        \\ \hline
+          located   &   house       &   musical     \\ \hline
+          high      &   published   &   chart       \\ \hline
+          system    &   general     &   featured    \\ \hline
+          group     &   students    &   concert     \\ \hline
+          well      &   royal       &   bass        \\ \hline
+      \end{tabular}
+      \caption{Top 10 words in tfidf of the largest three clusters after three iterations of K-means.}
+      \label{tab:iteration3}
+    \end{table}
+
+    \begin{table}
+      \centering
+      \begin{tabular}{|c|c|c|} \hline
+          {\bf Cluster 9 (95311)} & {\bf Cluster 12 (31232)} & {\bf Cluster 10 (8085)}\\ \hline
+          females   &   church      &   album       \\ \hline
+          family    &   college     &   released    \\ \hline
+          station   &   served      &   songs       \\ \hline
+          located   &   member      &   records     \\ \hline
+          north     &   appointed   &   rock        \\ \hline
+          high      &   house       &   chart       \\ \hline
+          season    &   published   &   musical     \\ \hline
+          system    &   general     &   featured    \\ \hline
+          group     &   party       &   bass        \\ \hline
+          well      &   royal       &   track       \\ \hline
+      \end{tabular}
+      \caption{Top 10 words in tfidf of the largest three clusters after four iterations of K-means.}
+      \label{tab:iteration4}
+    \end{table}
+
+    \begin{table}
+      \centering
+      \begin{tabular}{|c|c|c|} \hline
+          {\bf Cluster 9 (93304)} & {\bf Cluster 12 (32564)} & {\bf Cluster 10 (6968)}\\ \hline
+          females   &   church:     &   album       \\ \hline
+          family    &   college     &   released    \\ \hline
+          station   &   served      &   songs       \\ \hline
+          located   &   member      &   records     \\ \hline
+          north     &   appointed   &   rock        \\ \hline
+          high      &   house       &   chart       \\ \hline
+          system    &   published   &   bass        \\ \hline
+          group     &   party       &   track       \\ \hline
+          well      &   general     &   featured    \\ \hline
+          white     &   royal       &   musical     \\ \hline
+      \end{tabular}
+      \caption{Top 10 words in tfidf of the largest three clusters after five iterations of K-means.}
+      \label{tab:iteration5}
+    \end{table}
+
+    Tables \ref{tab:iteration1} through \ref{tab:iteration5} give the top ten words in each of the three clusters with largest in-cluster distances for the five iterations of K-means.
+  \end{enumerate}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 \end{homeworkProblem}
 

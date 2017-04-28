@@ -22,31 +22,28 @@ class KmeansReducer:
             yield line.rstrip().split(separator, 1)
 
     def reduce(self, uid, values):
-        # values is a list of dictionaries?
+        # values is a list of dictionaries
         c = Cluster()
-        c.uid = uid
+        c.uid = int(uid)
         sqdist = 0.0
-        average = {}
 
         # Compute new center
         count = 0
         for value in values:
-            count +=1
+            count += 1
             doc = Document(value)
             for key, v in doc.tfidf.items():
-                average[key] = average.get(key,0.0) + v
+                c.tfidf[key] = c.tfidf.get(key,0.0) + v
 
-        for key in average:
-            average[key] /= count
+        for key in c.tfidf:
+            c.tfidf[key] /= count
 
 
         # Get within cluster distance
         for value in values:
             doc = Document(value)
-            sqdist += MathUtil.compute_distance(average,doc.tfidf)
+            sqdist += MathUtil.compute_distance(c.tfidf,doc.tfidf)
 
-        # Update the cluster center
-        c.tfidf = average
         # Output the cluster center into file: clusteri
         self.emit("cluster" + str(c.uid), str(c))
         # Output the within distance into file: distancei
