@@ -1,0 +1,311 @@
+\documentclass{article}
+
+\usepackage{fancyhdr}
+\usepackage{extramarks}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{caption,subcaption}
+\usepackage{subfig}
+\usepackage{enumerate}          % For enumerates indexed by letters
+\usepackage{bm}                 % For bold letters
+\usepackage{algorithm2e}        % For pseudocode
+\usepackage{url}                % So texttt wraps instead of creating hbox
+
+%
+% Basic Document Settings
+%
+
+\topmargin=-0.45in
+\evensidemargin=0in
+\oddsidemargin=0in
+\textwidth=7in
+\textheight=9.0in
+\headsep=0.25in
+\linespread{1.1}
+\pagestyle{fancy}
+
+\lhead{\hmwkAuthorName}
+\chead{\hmwkClass:\ \hmwkTitle}
+\rhead{\firstxmark}
+\lfoot{\lastxmark}
+\cfoot{\thepage}
+
+\renewcommand\headrulewidth{0.4pt}
+\renewcommand\footrulewidth{0.4pt}
+
+\setlength\parindent{0pt}
+
+
+%
+% Homework Details
+%   - Title
+%   - Due date
+%   - Class
+%   - Section/Time
+%   - Instructor
+%   - Author
+%
+
+\newcommand{\hmwkTitle}{Homework 3}
+\newcommand{\hmwkDueDate}{May 19, 2017}
+\newcommand{\hmwkClass}{CSE 547}
+\newcommand{\hmwkAuthorName}{Brian de Silva}
+
+%
+% Title Page
+%
+
+\title{
+    \vspace{2in}
+    \textmd{\textbf{\hmwkClass:\ \hmwkTitle}}\\
+    \normalsize\vspace{0.1in}\small{Due\ on\ \hmwkDueDate\ }\\
+    \vspace{3in}
+}
+
+\author{\textbf{\hmwkAuthorName}}
+\date{}
+
+
+%
+% Various Helper Commands
+%
+
+% Useful for algorithms
+\newcommand{\alg}[1]{\textsc{\bfseries \footnotesize #1}}
+
+% For derivatives
+\newcommand{\deriv}[1]{\frac{\mathrm{d}}{\mathrm{d}x} (#1)}
+
+% For partial derivatives
+\newcommand{\pd}[2]{\frac{\partial}{\partial #1} (#2)}
+
+\newcommand{\pdd}[2]{\frac{\partial #1}{\partial #2}}
+
+% Integral dx
+\newcommand{\dx}{\mathrm{d}x}
+
+% Alias for the Solution section header
+\newcommand{\solution}{\textbf{\vskip 0.2cm \large Solution:\\}}
+
+% Useful commands
+\DeclareMathOperator*{\argmin}{arg\,min}
+\newcommand{\bbm}{\begin{bmatrix}}
+\newcommand{\ebm}{\end{bmatrix}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\dtdx}{\frac{\Delta t}{\Delta x}}
+\newcommand{\half}{\frac12}
+
+
+\begin{document}
+
+\maketitle
+
+\pagebreak
+
+\section*{Collaborators}
+I collaborated with Emily Dinan on Problem 1.5.
+
+
+
+% Problem 1
+\section{(Dual) Coordinate Ascent}
+
+
+In this problem, we will derive the dual coordinate ascent algorithm for the special case of ridge regression. In particular, we seek to solve the problem:
+\[
+	\min_w L(w) \textrm{ where } L(w)= \sum_{i=1}^n (w\cdot x_i - y_i)^2 + \lambda \|w\|^2
+\]
+
+Recall that the solution is:
+\[
+	w^* = (X^\top X+\lambda I)^{-1} X^\top Y
+\]
+where $X$ be the $n\times d$ matrix whose rows are $x_i$, and $Y$ is an $n$-dim vector.
+
+Recall the argument:
+\begin{eqnarray*}
+	w^* & = &  (X^\top X+\lambda I)^{-1} X^\top Y\\
+	 & = &  X^\top (X X^\top+\lambda I)^{-1} Y\\
+	 & := &  \frac{1}{\lambda} X^\top \alpha^*
+\end{eqnarray*}
+where $\alpha^* = (I+XX^\top/ \lambda )^{-1} Y$.
+
+\begin{enumerate}
+	\item (Linear algebra brush up) Prove that the above manipulations are true (without any assumptions on $X$ or $n$ or $d$). This involves proving the second equality in the expression.
+\end{enumerate}
+
+As in class, define:
+\[
+	G(\alpha_1, \alpha_2, \ldots \alpha_n) = \frac{1}{2} \alpha^\top
+	(I+XX^\top/ \lambda ) \alpha - Y^\top \alpha
+\]
+
+Now let us consider the consider the coordinate ascent algorithm:
+\begin{itemize}
+	\item start with $\alpha=0$.
+	\item choose coordinate $i$ randomly, and update:
+	\[
+	\alpha_i = \argmin_z G(\alpha_1, \ldots \alpha_{i-1}, z, \ldots, \alpha_n)
+	\]
+	\item repeat the previous step until some termination criterion is reached.
+	\item return $w =\frac{1}{\lambda} X^\top \alpha$.
+\end{itemize}
+
+\begin{enumerate}
+\setcounter{enumi}{1} 
+	\item Show that the solution to the inner optimization problem for $\alpha_i$ is:
+	\[
+	\alpha_i = \frac{ (y_i - \frac{1}{\lambda}(\sum_{j\neq i} \alpha_j x_j)\cdot x_i )}{1+\|x_i\|^2/\lambda} 
+	\]
+	\item What is the computational complexity of this update, as it is stated? (Assume that scalar multiplication and scalar addition is order one.)
+	\item What is the computational complexity of one stochastic gradient descent update?
+\end{enumerate}
+
+Now let us consider the update rule from class:
+
+\begin{itemize}
+	\item start with $\alpha=0$, $w=\frac{1}{\lambda} X^\top \alpha=0$.
+	\item Choose coordinate $i$ randomly and perform the following update:
+	\begin{itemize}
+		\item Compute the differences:
+		\begin{equation}\label{eq:delta}
+			\Delta \alpha_i =\frac{ (y_i -w\cdot x_i )-\alpha_i}{1+\|x_i\|^2/\lambda} 
+		\end{equation}
+		\item Update the parameters as follows:
+		\begin{equation}\label{eq:update}
+			\alpha_i \leftarrow \alpha_i+\Delta\alpha_i, \, \quad w \leftarrow w+\frac{1}{\lambda}x_i \cdot \Delta\alpha_i
+		\end{equation}
+	\end{itemize}
+	\item Repeat the previous step until some termination criterion is reached.
+	\item return $w =\frac{1}{\lambda} X^\top \alpha$.
+\end{itemize}
+
+Now let us examine why this algorithm is more efficient.
+
+\begin{enumerate}
+	\setcounter{enumi}{4} 
+	\item Prove that the above update is valid.
+	\item What is the computational complexity of the update, Equation~*\ref{eq:update}), in the above implementation?
+\end{enumerate}
+
+\solution
+\begin{enumerate}
+	\item Note that both $XX^T$ and $X^TX$ are symmetric positive-semidefinite, so all of their eigenvalues $\lambda_i$ satisfy $\lambda_i\geq0$ (they share the same eigenvalues, with the larger of the two matrices having 0 as a repeated eigenvalue with higher algebraic multiplicity). The eigenvalues of $X^TX+\lambda$ and $XX^T + \lambda I$ are therefore $ \lambda_i + \lambda$. If $\lambda>0$ then these eigenvalues are strictly positive, in which case it follows that both matrices are invertible. Hence
+	\[
+		\begin{array}{crcl}
+			&X^TY&=&X^TY \\
+			\iff & X^TY &=& X^T I Y \\
+			\iff & X^TY &=& X^T(XX^T+\lambda I)(XX^T+\lambda I)^{-1}Y \\
+			\iff & X^TY &=& (X^TX+\lambda I)X^T(XX^T+\lambda I)^{-1}Y \\
+			\iff & (X^TX+\lambda I)^{-1}X^TY &=& X^T(XX^T+\lambda I)^{-1}Y.
+		\end{array}
+	\]
+	This shows that the second equality in the expression is true.
+	\item 
+\end{enumerate}
+
+
+% Problem 2
+\section{Let's try it out!}
+\subsubsection*{Dimension Reduction with PCA}
+
+Project each image onto the top $50$ PCA directions. This reduces the dimension of each image from $784$ to $50$. The reason for doing this is to speed up the computation.
+
+\subsubsection*{Feature generation: Random Fourier Features to approximate the RBF Kernel}
+Now we will map each $x$ to a $k$-dimensional feature vector as follows:
+\[
+	x \rightarrow (h_1(x), h_2(x), \ldots h_k(x))
+\]
+We will use $k=N=30,000$.  Each $h_j$ will be of the form:
+\[
+	h_j(x) = sin\left(\frac{v_j \cdot x}{\sigma}\right)
+\]
+To construct all these vectors $v_1, v_2,\ldots v_k$, you will independently sample every coordinate for every vector from a standard normal distribution (with unit variance). Here, you can think of $\sigma$ as a bandwidth parameter.
+
+\subsection{SGD and Averaging}
+Let us optimize the square loss. We do this as a surrogate to obtain good classification accuracy (on the test set).
+
+In practice, instead of complete randomization, we often run in \emph{epochs}, where we randomly permute our dataset and then pass through out dataset in this permuted order. Each time we start another epoch, we permute our dataset again.
+
+Let us plot the losses of two quantities. Let us keep around your parameter vector $w_t$ (your weight vector at iteration $t$). Let us also track the average weight vector $\overline{w}_\tau$ over the last epoch, i.e. $\overline{w}_\tau$ is the average parameter vector over the $\tau$-th epoch.  The average parameter is what is suggested to be used by the Polyak-Juditsky averaging method.
+
+Define the total square loss as the \emph{sum} square loss over the $10$ classes (so you do not divide by $10$ here).
+
+Throughout this question you will use a mini-batch size of $1$.
+
+\begin{enumerate}
+	\item Specify your parameter choices: your learning rate (or learning rate scheme) and the kernel bandwidth.
+	\item You should have one plot showing the both the squared loss after every epoch (starting with your initial squared error). Please label your axes in a readable way.  Plot the loss of both $w_t$ and the average weight vector $\overline{w}_\tau$. You should have both the training and test losses on the same plot (so there should be four curves).
+	\item For the classification loss, do the same, except start your plots at the end of the first epoch. Again, there should be four curves (for the training and test loss of both parameters).
+	\item  What is your final training squared loss and classification loss for both parameters? What is the total number of mistakes that are made on the training set of your final point? Comment on the performance of the average iterate vs. the last point.
+	\item What is your final test squared loss and classification loss for both parameters? What is the total number of mistakes that are made on the test set of your final point? Comment on the performance of the average iterate vs. the last point.
+\end{enumerate}
+
+\solution
+
+\begin{enumerate}
+	\item
+\end{enumerate}
+
+
+\subsection{SDCA}
+Now let us try out our (dual) coordinate ascent method.  Again, instead of complete randomization, we often run in \emph{epochs}, where we randomly permute our dataset and then pass through out dataset in this permuted order. Each time we start another epoch, we permute our dataset again.
+
+Choose a regularization parameter. Do this appropriately so you obtain a good test accuracy.
+
+\begin{enumerate}
+	\item Specify your regularization parameter. Are there any other parameter choices?
+	\item  Now plot the dual loss $G$. Your plot should show the $G$-loss after every epoch (starting with your initial squared error). Please label your axes in a readable way.
+	\item Does it make sense to plot the $G$-loss on the test set? Why not?
+	\item  Now plot the squared loss after every epoch (starting with your initial squared error). Please label your axes in a readable way.  You should have both the training and test losses on the same plot (so there should be two curves).
+	\item  For the classification loss, do the same, except start your plots at the end of the first epoch. Again, there should be two curves (for the training and test loss).
+	\item   What is your best training squared loss and classification loss? What is the total number of mistakes that are made on the training set of your final point?
+	\item   What is your best test squared loss and classification loss? What is the total number of mistakes that are made on the test set of your final point?
+	\item Compare the speed and accuracy to what you obtained with SGD?
+\end{enumerate}
+
+\solution
+
+\begin{enumerate}
+	\item 
+\end{enumerate}
+
+
+\subsection{Mini-batching (in the dual) and parallelization!}
+Now, let us understand parallelization issues with mini-batching. 
+
+Here instead of updating one coordinate at a time, we will update multiple coordinates. In particular, we will choose a batch of  $b$ coordinates and compute the $\Delta_i$'s of these coordinates as specified in Equation~\ref{eq:delta}.
+ 
+Let us choose a batch size $b=100$.
+
+\begin{enumerate}
+	\item One possibility is to just update the $\alpha_i$'s as specified in Equation~\ref{eq:update}. Is this ok?
+	\item Argue that the following update never decrease the value of $G$:
+	\[
+		\alpha_i \leftarrow \alpha_i+\frac{1}{b}\Delta\alpha_i, \, \quad w \leftarrow
+		w+\frac{1}{b}\frac{1}{\lambda}x_i \cdot \Delta\alpha_i
+	\]
+	where the update is performed on all of the chosen coordinates in the mini-batch.
+	\item  Now use this algorithm with $b=100$. And provide the same training and test loss plots, for the square loss and classification loss as before. (Again, use a permuted order rather than complete randomization). Plot this with your earlier curves for $b=1$ and have the $x$ axis be the total number of points used. Note that $b$ steps on your $x$-axis will correspond to one update.
+	\item In terms of the \emph{total number of data points touched}, does this perform notably better or worse than what you had before, with the $b=1$?
+\end{enumerate}
+
+Now let us improve upon this algorithm. Consider the update rule with parameter $\gamma$:
+\[
+	\alpha_i \leftarrow \alpha_i+\gamma\Delta\alpha_i, \, \quad w \leftarrow
+	w+\frac{\gamma}{\lambda}x_i \cdot \Delta\alpha_i
+\]
+where the update is performed on all of the chosen coordinates in the mini-batch.
+
+
+\begin{enumerate}
+	\item Give an argument as to why choosing $\gamma=1/b$ is pessimistic. (Either give a concise argument or give an example.)
+	\item Now empirically (on our $b=100$ experiments) search a little to find a good choice for gamma. What value of $\gamma$ did you choose? What value  of $\gamma$ do things diverge?
+	\item  Now use this choice to redo your experiments. Provide the same training and test loss plots, for the square loss and classification loss as before. (Again, use a permuted order rather than complete randomization).
+	\item In terms of the \emph{total number of data points touched}, does this perform notably better than what you had before, for both SGD and for the $\gamma=1/b$ case? What have noticed about your total runtime?
+\end{enumerate}
+
+\end{document}
