@@ -97,6 +97,7 @@
 \newcommand{\R}{\mathbb{R}}
 \newcommand{\dtdx}{\frac{\Delta t}{\Delta x}}
 \newcommand{\half}{\frac12}
+\newcommand{\norm}[1]{\left\|#1\right\|}
 
 
 \begin{document}
@@ -186,9 +187,9 @@ Now let us consider the update rule from class:
 Now let us examine why this algorithm is more efficient.
 
 \begin{enumerate}
-	\setcounter{enumi}{4} 
+\setcounter{enumi}{4} 
 	\item Prove that the above update is valid.
-	\item What is the computational complexity of the update, Equation~*\ref{eq:update}), in the above implementation?
+	\item What is the computational complexity of the update, Equation (\ref{eq:update}), in the above implementation?
 \end{enumerate}
 
 \solution
@@ -204,7 +205,29 @@ Now let us examine why this algorithm is more efficient.
 		\end{array}
 	\]
 	This shows that the second equality in the expression is true.
-	\item 
+	\item Differentiating $G$ with respect to $\alpha_i$ yields
+	\begin{align*}
+		\frac{\partial G}{\partial \alpha_i} &= [(I+\tfrac1\lambda XX^T)\alpha]_i-y_i\\
+		&= (I+\tfrac1\lambda XX^T)_i\cdot \alpha - y_i\\
+		&= \sum_{j\neq i}^n\left(\frac{x_i\cdot x_j}{\lambda}\alpha_j\right) + \left(1+\frac{x_i\cdot x_i}{\lambda} \right)\alpha_i-y_i\\
+		&= \tfrac1\lambda\left(\sum_{j\neq i}^n \alpha_jx_j\right)\cdot x_i + \left(1+\frac{\norm{x_i}^2}{\lambda} \right)\alpha_i-y_i.
+	\end{align*}
+	where $(I+\tfrac1\lambda XX^T)_i$ is the $i$-th row of $I+\tfrac1\lambda XX^T$. Note that we have used that $(XX^T)_{ij} = x_i\cdot x_j$. To find the optima we set the above expression equal to zero and solve for $\alpha_i$
+	\[
+		\begin{array}{crcl}
+			 &\tfrac1\lambda\left(\sum_{j\neq i}^n \alpha_jx_j\right)\cdot x_i + \left(1+\frac{\norm{x_i}^2}{\lambda} \right)\alpha_i-y_i & = & 0\\
+			\implies & \left(1+\frac{\norm{x_i}^2}{\lambda} \right)\alpha_i & = & y_i - \tfrac1\lambda\left(\sum_{j\neq i}^n \alpha_jx_j\right)\cdot x_i \\
+			\implies & \alpha_i & = & \frac{y_i - \tfrac1\lambda\left(\sum_{j\neq i}^n \alpha_jx_j\right)\cdot x_i}{1+\norm{x_i}^2/\lambda}.
+		\end{array}
+	\]
+	\item As it is stated the most expensive part of the update is the computation of the sum $\sum_{j\neq i}^n \alpha_jx_j$. For each of the $n-1$ terms one must perform $d$ multiplications, totalling $\mathcal{O}(nd)$ operations. Adding these terms together costs us another $d(n-1)=\mathcal{O}(nd)$ operations. The other computations are relatively cheap compared to this one, so the total complexity is $\mathcal{O}(nd)$.
+	\item An update of stochastic gradient descent is of the form
+	\[
+		w\leftarrow w + \eta\left(-\lambda w + x^j\left(y^j-\frac{\exp(w_0+w\cdot x^j)}{1+\exp(w_0+w\cdot x^j)} \right)\right)
+	\]
+	which only costs $\mathcal{O}(d)$ operations (the vector additions, dot products, and multiplication of $x^j$ by a scalar all cost $\mathcal{O}(d)$ operations).
+	\item ***
+	\item The computational complexity of the update in Equation (\ref{eq:update}) is of complexity $\mathcal{O}(d)$ since computing $\Delta \alpha_i$ requires two $d$-dimensional dot products, each costing $2d-1=\mathcal{O}(d)$ operations. Updating $w$ also costs $\mathcal{O}(d)$ operations because it requires multiplying a $d$-dimensional vector by a scalar and adding two $d$-dimensional vectors.
 \end{enumerate}
 
 
