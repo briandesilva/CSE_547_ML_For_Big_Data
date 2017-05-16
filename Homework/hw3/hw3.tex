@@ -13,6 +13,8 @@
 \usepackage{bm}                 % For bold letters
 \usepackage{algorithm2e}        % For pseudocode
 \usepackage{url}                % So texttt wraps instead of creating hbox
+\usepackage{mathtools}
+\mathtoolsset{showonlyrefs}		% So only referenced equations are numbered
 
 %
 % Basic Document Settings
@@ -116,14 +118,14 @@ I collaborated with Emily Dinan on Problem 1.5.
 
 
 In this problem, we will derive the dual coordinate ascent algorithm for the special case of ridge regression. In particular, we seek to solve the problem:
-\[
+\begin{align}
 	\min_w L(w) \textrm{ where } L(w)= \sum_{i=1}^n (w\cdot x_i - y_i)^2 + \lambda \|w\|^2
-\]
+\end{align}
 
 Recall that the solution is:
-\[
+\begin{align}
 	w^* = (X^\top X+\lambda I)^{-1} X^\top Y
-\]
+\end{align}
 where $X$ be the $n\times d$ matrix whose rows are $x_i$, and $Y$ is an $n$-dim vector.
 
 Recall the argument:
@@ -139,18 +141,18 @@ where $\alpha^* = (I+XX^\top/ \lambda )^{-1} Y$.
 \end{enumerate}
 
 As in class, define:
-\[
+\begin{align}
 	G(\alpha_1, \alpha_2, \ldots \alpha_n) = \frac{1}{2} \alpha^\top
 	(I+XX^\top/ \lambda ) \alpha - Y^\top \alpha
-\]
+\end{align}
 
 Now let us consider the consider the coordinate ascent algorithm:
 \begin{itemize}
 	\item start with $\alpha=0$.
 	\item choose coordinate $i$ randomly, and update:
-	\[
+	\begin{align}
 	\alpha_i = \argmin_z G(\alpha_1, \ldots \alpha_{i-1}, z, \ldots, \alpha_n)
-	\]
+	\end{align}
 	\item repeat the previous step until some termination criterion is reached.
 	\item return $w =\frac{1}{\lambda} X^\top \alpha$.
 \end{itemize}
@@ -158,9 +160,9 @@ Now let us consider the consider the coordinate ascent algorithm:
 \begin{enumerate}
 \setcounter{enumi}{1} 
 	\item Show that the solution to the inner optimization problem for $\alpha_i$ is:
-	\[
+	\begin{align}
 	\alpha_i = \frac{ (y_i - \frac{1}{\lambda}(\sum_{j\neq i} \alpha_j x_j)\cdot x_i )}{1+\|x_i\|^2/\lambda} 
-	\]
+	\end{align}
 	\item What is the computational complexity of this update, as it is stated? (Assume that scalar multiplication and scalar addition is order one.)
 	\item What is the computational complexity of one stochastic gradient descent update?
 \end{enumerate}
@@ -189,45 +191,45 @@ Now let us examine why this algorithm is more efficient.
 \begin{enumerate}
 \setcounter{enumi}{4} 
 	\item Prove that the above update is valid.
-	\item What is the computational complexity of the update, Equation (\ref{eq:update}), in the above implementation?
+	\item What is the computational complexity of the update, Equation \eqref{eq:update}, in the above implementation?
 \end{enumerate}
 
 \solution
 \begin{enumerate}
-	\item Note that both $XX^T$ and $X^TX$ are symmetric positive-semidefinite, so all of their eigenvalues $\lambda_i$ satisfy $\lambda_i\geq0$ (they share the same eigenvalues, with the larger of the two matrices having 0 as a repeated eigenvalue with higher algebraic multiplicity). The eigenvalues of $X^TX+\lambda$ and $XX^T + \lambda I$ are therefore $ \lambda_i + \lambda$. If $\lambda>0$ then these eigenvalues are strictly positive, in which case it follows that both matrices are invertible. Hence
-	\[
+	\item Note that both $XX^\top$ and $X^\top X$ are symmetric positive-semidefinite, so all of their eigenvalues $\lambda_i$ satisfy $\lambda_i\geq0$ (they share the same eigenvalues, with the larger of the two matrices having 0 as a repeated eigenvalue with higher algebraic multiplicity). The eigenvalues of $X^\top X+\lambda$ and $XX^\top + \lambda I$ are therefore $ \lambda_i + \lambda$. If $\lambda>0$ then these eigenvalues are strictly positive, in which case it follows that both matrices are invertible. Hence
+	\begin{align}
 		\begin{array}{crcl}
-			&X^TY&=&X^TY \\
-			\iff & X^TY &=& X^T I Y \\
-			\iff & X^TY &=& X^T(XX^T+\lambda I)(XX^T+\lambda I)^{-1}Y \\
-			\iff & X^TY &=& (X^TX+\lambda I)X^T(XX^T+\lambda I)^{-1}Y \\
-			\iff & (X^TX+\lambda I)^{-1}X^TY &=& X^T(XX^T+\lambda I)^{-1}Y.
+			&X^\top Y&=&X^\top Y \\
+			\iff & X^\top Y &=& X^\top I Y \\
+			\iff & X^\top Y &=& X^\top(XX^\top+\lambda I)(XX^\top+\lambda I)^{-1}Y \\
+			\iff & X^\top Y &=& (X^\top X+\lambda I)X^\top(XX^\top+\lambda I)^{-1}Y \\
+			\iff & (X^\top X+\lambda I)^{-1}X^\top Y &=& X^\top(XX^\top+\lambda I)^{-1}Y.
 		\end{array}
-	\]
+	\end{align}
 	This shows that the second equality in the expression is true.
 	\item Differentiating $G$ with respect to $\alpha_i$ yields
 	\begin{align*}
-		\frac{\partial G}{\partial \alpha_i} &= [(I+\tfrac1\lambda XX^T)\alpha]_i-y_i\\
-		&= (I+\tfrac1\lambda XX^T)_i\cdot \alpha - y_i\\
+		\frac{\partial G}{\partial \alpha_i} &= [(I+\tfrac1\lambda XX^\top)\alpha]_i-y_i\\
+		&= (I+\tfrac1\lambda XX^\top)_i\cdot \alpha - y_i\\
 		&= \sum_{j\neq i}^n\left(\frac{x_i\cdot x_j}{\lambda}\alpha_j\right) + \left(1+\frac{x_i\cdot x_i}{\lambda} \right)\alpha_i-y_i\\
 		&= \tfrac1\lambda\left(\sum_{j\neq i}^n \alpha_jx_j\right)\cdot x_i + \left(1+\frac{\norm{x_i}^2}{\lambda} \right)\alpha_i-y_i.
 	\end{align*}
-	where $(I+\tfrac1\lambda XX^T)_i$ is the $i$-th row of $I+\tfrac1\lambda XX^T$. Note that we have used that $(XX^T)_{ij} = x_i\cdot x_j$. To find the optima we set the above expression equal to zero and solve for $\alpha_i$
-	\[
+	where $(I+\tfrac1\lambda XX^\top)_i$ is the $i$-th row of $I+\tfrac1\lambda XX^\top$. Note that we have used that $(XX^\top)_{ij} = x_i\cdot x_j$. To find the optima we set the above expression equal to zero and solve for $\alpha_i$
+	\begin{align}
 		\begin{array}{crcl}
 			 &\tfrac1\lambda\left(\sum_{j\neq i}^n \alpha_jx_j\right)\cdot x_i + \left(1+\frac{\norm{x_i}^2}{\lambda} \right)\alpha_i-y_i & = & 0\\
 			\implies & \left(1+\frac{\norm{x_i}^2}{\lambda} \right)\alpha_i & = & y_i - \tfrac1\lambda\left(\sum_{j\neq i}^n \alpha_jx_j\right)\cdot x_i \\
 			\implies & \alpha_i & = & \frac{y_i - \tfrac1\lambda\left(\sum_{j\neq i}^n \alpha_jx_j\right)\cdot x_i}{1+\norm{x_i}^2/\lambda}.
 		\end{array}
-	\]
+	\end{align}
 	\item As it is stated the most expensive part of the update is the computation of the sum $\sum_{j\neq i}^n \alpha_jx_j$. For each of the $n-1$ terms one must perform $d$ multiplications, totalling $\mathcal{O}(nd)$ operations. Adding these terms together costs us another $d(n-1)=\mathcal{O}(nd)$ operations. The other computations are relatively cheap compared to this one, so the total complexity is $\mathcal{O}(nd)$.
 	\item An update of stochastic gradient descent is of the form
-	\[
+	\begin{align}
 		w\leftarrow w + \eta\left(-\lambda w + x^j\left(y^j-\frac{\exp(w_0+w\cdot x^j)}{1+\exp(w_0+w\cdot x^j)} \right)\right)
-	\]
+	\end{align}
 	which only costs $\mathcal{O}(d)$ operations (the vector additions, dot products, and multiplication of $x^j$ by a scalar all cost $\mathcal{O}(d)$ operations).
 	\item ***
-	\item The computational complexity of the update in Equation (\ref{eq:update}) is of complexity $\mathcal{O}(d)$ since computing $\Delta \alpha_i$ requires two $d$-dimensional dot products, each costing $2d-1=\mathcal{O}(d)$ operations. Updating $w$ also costs $\mathcal{O}(d)$ operations because it requires multiplying a $d$-dimensional vector by a scalar and adding two $d$-dimensional vectors.
+	\item The computational complexity of the update in Equation \eqref{eq:update} is of complexity $\mathcal{O}(d)$ since computing $\Delta \alpha_i$ requires two $d$-dimensional dot products, each costing $2d-1=\mathcal{O}(d)$ operations. Updating $w$ also costs $\mathcal{O}(d)$ operations because it requires multiplying a $d$-dimensional vector by a scalar and adding two $d$-dimensional vectors.
 \end{enumerate}
 
 
@@ -239,13 +241,13 @@ Project each image onto the top $50$ PCA directions. This reduces the dimension 
 
 \subsubsection*{Feature generation: Random Fourier Features to approximate the RBF Kernel}
 Now we will map each $x$ to a $k$-dimensional feature vector as follows:
-\[
+\begin{align}
 	x \rightarrow (h_1(x), h_2(x), \ldots h_k(x))
-\]
+\end{align}
 We will use $k=N=30,000$.  Each $h_j$ will be of the form:
-\[
+\begin{align}
 	h_j(x) = sin\left(\frac{v_j \cdot x}{\sigma}\right)
-\]
+\end{align}
 To construct all these vectors $v_1, v_2,\ldots v_k$, you will independently sample every coordinate for every vector from a standard normal distribution (with unit variance). Here, you can think of $\sigma$ as a bandwidth parameter.
 
 \subsection{SGD and Averaging}
@@ -270,12 +272,57 @@ Throughout this question you will use a mini-batch size of $1$.
 \solution
 
 \begin{enumerate}
+	\item For this problem I used no regularization, a learning rate of $10^{-5} / (2\sqrt{t+1})$, where $t$ is the epoch, and set all initial weights to 0. My kernel bandwidth was half the approximate mean distance between points in the dataset. In order to approximate this distance I randomly sampled 100 pairs of points from the training data and took the mean of their Euclidean distances from one another. This parameter was on the order of $10^3$. To obtain the plots below I ran SGD for 10 epochs. The code took about two hours to run (including the time it took to compute the square and classification loss each epoch).
+
 	\item
+	\begin{figure}
+		\centering
+		\begin{subfigure}{0.49\textwidth}
+			\centering
+			\includegraphics[width=.95\linewidth]{figures/SGD_squareLoss}
+			\caption{The square loss of SGD on the training and test sets as a function of the epoch}
+			\label{fig:SGD_squareLoss_overview}
+		\end{subfigure}
+		\begin{subfigure}{0.49\textwidth}
+			\centering
+			\includegraphics[width=\linewidth]{figures/SGD_squareLoss_zoomed}
+			\caption{The square loss of SGD on the training and test sets as a function of the epoch (starting after the first epoch)}
+			\label{fig:SGD_squareLoss_zoomed}
+		\end{subfigure}
+		\caption{Two views of the square loss of SGD on the training and test sets after each epoch.}
+		\label{fig:SGD_squareloss}
+	\end{figure}
+	Figure \ref{fig:SGD_squareLoss_overview} shows the square loss after each epoch on the training and test sets for both $w_\tau$ and the average weight vector $\overline w_\tau$. Figure \ref{fig:SGD_squareLoss_zoomed} shows the same square loss, but omits the initial loss.
+
+	\item
+	\begin{figure}
+		\centering
+		\includegraphics[width=.75\textwidth]{figures/SGD_01Loss}
+		\caption{The classification error of SGD on the training and test sets as a function of the epoch} 
+		\label{fig:figures/SGD_01Loss}
+	\end{figure}
+	Figure \ref{fig:figures/SGD_01Loss} gives the classification loss as a function of iterations for $w_\tau$ and $\overline w_\tau$ on the training and test sets.
+
+	\item
+	\begin{table}[h]
+		\centering
+		\begin{tabular}{|c|c|c|c|}
+		     & {\bf Square loss} & {\bf Classification loss} & {\bf Total mistakes}  \\ \hline
+		     $w_\tau$ & 	&	 &	\\ \hline
+		     $\overline w_\tau$ & 	&	 &	\\ \hline
+		\end{tabular}
+		\caption{Final losses on the training set}
+		\label{tab:sgd_final_loss_train}
+	\end{table}
+
+	The final squared and classification losses on the training set are summarized in Table \ref{tab:sgd_final_loss_train}.
+
 \end{enumerate}
 
 
+
 \subsection{SDCA}
-Now let us try out our (dual) coordinate ascent method.  Again, instead of complete randomization, we often run in \emph{epochs}, where we randomly permute our dataset and then pass through out dataset in this permuted order. Each time we start another epoch, we permute our dataset again.
+Now let us try out our (dual) coordinate ascent method. Again, instead of complete randomization, we often run in \emph{epochs}, where we randomly permute our dataset and then pass through out dataset in this permuted order. Each time we start another epoch, we permute our dataset again.
 
 Choose a regularization parameter. Do this appropriately so you obtain a good test accuracy.
 
@@ -300,27 +347,27 @@ Choose a regularization parameter. Do this appropriately so you obtain a good te
 \subsection{Mini-batching (in the dual) and parallelization!}
 Now, let us understand parallelization issues with mini-batching. 
 
-Here instead of updating one coordinate at a time, we will update multiple coordinates. In particular, we will choose a batch of  $b$ coordinates and compute the $\Delta_i$'s of these coordinates as specified in Equation~\ref{eq:delta}.
+Here instead of updating one coordinate at a time, we will update multiple coordinates. In particular, we will choose a batch of  $b$ coordinates and compute the $\Delta_i$'s of these coordinates as specified in Equation \eqref{eq:delta}.
  
 Let us choose a batch size $b=100$.
 
 \begin{enumerate}
-	\item One possibility is to just update the $\alpha_i$'s as specified in Equation~\ref{eq:update}. Is this ok?
+	\item One possibility is to just update the $\alpha_i$'s as specified in Equation \eqref{eq:update}. Is this ok?
 	\item Argue that the following update never decrease the value of $G$:
-	\[
+	\begin{align}
 		\alpha_i \leftarrow \alpha_i+\frac{1}{b}\Delta\alpha_i, \, \quad w \leftarrow
 		w+\frac{1}{b}\frac{1}{\lambda}x_i \cdot \Delta\alpha_i
-	\]
+	\end{align}
 	where the update is performed on all of the chosen coordinates in the mini-batch.
 	\item  Now use this algorithm with $b=100$. And provide the same training and test loss plots, for the square loss and classification loss as before. (Again, use a permuted order rather than complete randomization). Plot this with your earlier curves for $b=1$ and have the $x$ axis be the total number of points used. Note that $b$ steps on your $x$-axis will correspond to one update.
 	\item In terms of the \emph{total number of data points touched}, does this perform notably better or worse than what you had before, with the $b=1$?
 \end{enumerate}
 
 Now let us improve upon this algorithm. Consider the update rule with parameter $\gamma$:
-\[
+\begin{align}
 	\alpha_i \leftarrow \alpha_i+\gamma\Delta\alpha_i, \, \quad w \leftarrow
 	w+\frac{\gamma}{\lambda}x_i \cdot \Delta\alpha_i
-\]
+\end{align}
 where the update is performed on all of the chosen coordinates in the mini-batch.
 
 
