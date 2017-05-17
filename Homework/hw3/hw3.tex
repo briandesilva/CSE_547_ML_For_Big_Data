@@ -215,7 +215,7 @@ Now let us examine why this algorithm is more efficient.
 		&= \tfrac1\lambda\left(\sum_{j\neq i}^n \alpha_jx_j\right)\cdot x_i + \left(1+\frac{\norm{x_i}^2}{\lambda} \right)\alpha_i-y_i.
 	\end{align*}
 	where $(I+\tfrac1\lambda XX^\top)_i$ is the $i$-th row of $I+\tfrac1\lambda XX^\top$. Note that we have used that $(XX^\top)_{ij} = x_i\cdot x_j$. To find the optima we set the above expression equal to zero and solve for $\alpha_i$
-	\begin{align}
+	\begin{align}\label{eq:inneroptimization}
 		\begin{array}{crcl}
 			 &\tfrac1\lambda\left(\sum_{j\neq i}^n \alpha_jx_j\right)\cdot x_i + \left(1+\frac{\norm{x_i}^2}{\lambda} \right)\alpha_i-y_i & = & 0\\
 			\implies & \left(1+\frac{\norm{x_i}^2}{\lambda} \right)\alpha_i & = & y_i - \tfrac1\lambda\left(\sum_{j\neq i}^n \alpha_jx_j\right)\cdot x_i \\
@@ -228,7 +228,30 @@ Now let us examine why this algorithm is more efficient.
 		w\leftarrow w + \eta\left(-\lambda w + x^j\left(y^j-\frac{\exp(w_0+w\cdot x^j)}{1+\exp(w_0+w\cdot x^j)} \right)\right)
 	\end{align}
 	which only costs $\mathcal{O}(d)$ operations (the vector additions, dot products, and multiplication of $x^j$ by a scalar all cost $\mathcal{O}(d)$ operations).
-	\item ***
+
+	\item First we observe that
+	\begin{align}
+		\Delta \alpha_i&=\frac{(y_i-w\cdot x_i)-\alpha_i}{1+\norm{x_i}^2/\lambda}\\
+		&=\frac{y_i-\tfrac1\lambda \left(\sum_{j}\alpha_jx_j\right)\cdot x_i-\alpha_i}{1+\norm{x_i}^2/\lambda}\\
+		&=\frac{y_i-\tfrac1\lambda \left(\sum_{j\neq i}\alpha_jx_j\right)\cdot x_i-\alpha_i\left(1+\tfrac1\lambda \norm{x_i}^2\right)}{1+\norm{x_i}^2/\lambda}\\
+		&= \frac{y_i-\tfrac1\lambda \left(\sum_{j\neq i}\alpha_jx_j\right)\cdot x_i}{1+\norm{x_i}^2/\lambda}-\alpha_i.
+	\end{align}
+	Hence the update \eqref{eq:update} reduces to
+	\begin{equation}
+		\alpha_i+\Delta\alpha_i ~=~ \alpha_i + \frac{y_i-\tfrac1\lambda \left(\sum_{j\neq i}\alpha_jx_j\right)\cdot x_i}{1+\norm{x_i}^2/\lambda}-\alpha_i ~=~ \frac{y_i-\tfrac1\lambda \left(\sum_{j\neq i}\alpha_jx_j\right)\cdot x_i}{1+\norm{x_i}^2/\lambda},
+	\end{equation}
+	which is the solution to the inner optimization problem for $\alpha_i$ as demonstrated in \eqref{eq:inneroptimization}.
+
+	Next we consider the update for $w$. Before updating, $w=\tfrac1\lambda X^\top \alpha$. Then $\alpha$ is updated as in \eqref{eq:update}, which can also be expressed as $\alpha\leftarrow \alpha + e_i\Delta\alpha_i$, where $e_i$ is the vector with 0's in all but the $i$-th entry where it has a 1. Thus the new $w$ should be
+	\begin{equation}
+		\begin{array}{crl}
+		&w&\leftarrow \tfrac1\lambda X^\top(\alpha+e_i\Delta\alpha_i)\\
+		\implies&w&\leftarrow \tfrac1\lambda X^\top\alpha + \tfrac1\lambda X^\top e_i\Delta\alpha_i\\
+		\implies&w&\leftarrow w + \tfrac1\lambda x_i\cdot\Delta\alpha_i
+		\end{array}
+	\end{equation}
+	which agrees with the update given in \eqref{eq:update}.
+
 	\item The computational complexity of the update in Equation \eqref{eq:update} is of complexity $\mathcal{O}(d)$ since computing $\Delta \alpha_i$ requires two $d$-dimensional dot products, each costing $2d-1=\mathcal{O}(d)$ operations. Updating $w$ also costs $\mathcal{O}(d)$ operations because it requires multiplying a $d$-dimensional vector by a scalar and adding two $d$-dimensional vectors.
 \end{enumerate}
 
@@ -292,7 +315,7 @@ Throughout this question you will use a mini-batch size of $1$.
 		\caption{Two views of the square loss of SGD on the training and test sets after each epoch.}
 		\label{fig:SGD_squareloss}
 	\end{figure}
-	Figure \ref{fig:SGD_squareLoss_overview} shows the square loss after each epoch on the training and test sets for both $w_\tau$ and the average weight vector $\overline w_\tau$. Figure \ref{fig:SGD_squareLoss_zoomed} shows the same square loss, but omits the initial loss.
+	Figure \ref{fig:SGD_squareLoss_overview} shows the square loss after each epoch on the training and test sets for both $w_t$ and the average weight vector $\overline w_\tau$. Figure \ref{fig:SGD_squareLoss_zoomed} shows the same square loss, but omits the initial loss.
 
 	\item
 	\begin{figure}
@@ -301,22 +324,35 @@ Throughout this question you will use a mini-batch size of $1$.
 		\caption{The classification error of SGD on the training and test sets as a function of the epoch} 
 		\label{fig:figures/SGD_01Loss}
 	\end{figure}
-	Figure \ref{fig:figures/SGD_01Loss} gives the classification loss as a function of iterations for $w_\tau$ and $\overline w_\tau$ on the training and test sets.
+	Figure \ref{fig:figures/SGD_01Loss} gives the classification loss as a function of iterations for $w_t$ and $\overline w_\tau$ on the training and test sets.
 
 	\item
-	\begin{table}[h]
+	\begin{table}[h!]
 		\centering
-		\begin{tabular}{|c|c|c|c|}
+		\begin{tabular}{|c|c|c|c|}\hline
 		     & {\bf Square loss} & {\bf Classification loss} & {\bf Total mistakes}  \\ \hline
-		     $w_\tau$ & 	&	 &	\\ \hline
-		     $\overline w_\tau$ & 	&	 &	\\ \hline
+		     $w_t$            & 0.056793	& 0.009250	 & 555	\\ \hline
+		     $\overline w_\tau$  & 0.056665	& 0.009433	 & 566	\\ \hline
 		\end{tabular}
-		\caption{Final losses on the training set}
+		\caption{Final losses of SGD on the training set}
 		\label{tab:sgd_final_loss_train}
 	\end{table}
 
-	The final squared and classification losses on the training set are summarized in Table \ref{tab:sgd_final_loss_train}.
+	The final squared and classification losses on the training set are summarized in Table \ref{tab:sgd_final_loss_train}. The average iterate and the final weights produced by SGD give similar performance on the training set with the final weights doing marginally better.
 
+	\item
+	\begin{table}[h!]
+		\centering
+		\begin{tabular}{|c|c|c|c|}\hline
+		     & {\bf Square loss} & {\bf Classification loss} & {\bf Total mistakes}  \\ \hline
+		     $w_t$            & 0.071672	& 0.017400	 & 174	\\ \hline
+		     $\overline w_\tau$  & 0.071346	& 0.016500	 & 165	\\ \hline
+		\end{tabular}
+		\caption{Final losses of SGD on the test set}
+		\label{tab:sgd_final_loss_test}
+	\end{table}
+
+	The final squared and classification losses on the test set are summarized in Table \ref{tab:sgd_final_loss_test}. Again the performance of the averaged weights and the final weights are similar. On the test set the average weights do a bit better than the final weights.
 \end{enumerate}
 
 
@@ -340,7 +376,64 @@ Choose a regularization parameter. Do this appropriately so you obtain a good te
 \solution
 
 \begin{enumerate}
-	\item 
+	\item I chose $\lambda=1.0$ as my regularization parameter. I ran the method for one epoch using a variety of values of $\lambda$ and found this one to give the best 0/1 loss on the test set. The only other parameters to set were hyperparameters such as the number of epochs to run.
+
+	\item
+	\begin{figure}
+		\centering
+		\includegraphics[width=.75\textwidth]{figures/SDCA_gloss_b1}
+		\caption{G-loss on training set using SDCA with batch size $b=1$} 
+		\label{fig:SDCA_gloss_b1}
+	\end{figure}
+	Figure \ref{fig:SDCA_gloss_b1} shows the G-loss after each of the 15 epochs.
+
+	\item It does not make sense to plot the G-loss on the test set because the G-loss is meant to give information about how close our current $\alpha$ is to the true dual coordinates, $\alpha^*$. But $\alpha^*$ is associated with the solution to the least squares problem involving only the \emph{training set}. Furthermore, $\alpha$ does not even have the right number of entries for us to define a G-loss on the test set (unless the training and test sets were the same size). Each entry of $\alpha_i$ corresponds to an example in the training set.
+
+	\item
+	\begin{figure}
+		\centering
+		\begin{subfigure}{0.49\textwidth}
+			\centering
+			\includegraphics[width=\linewidth]{figures/SDCA_squareLoss_b1}
+			\caption{The square loss for SDCA using batch size $b=1$}
+		\end{subfigure}
+		\begin{subfigure}{0.49\textwidth}
+			\centering
+			\includegraphics[width=\linewidth]{figures/SDCA_squareLoss_zoomed_b1}
+			\caption{The square loss after 1 epoch for SDCA using batch size $b=1$}
+		\end{subfigure}
+		\caption{Two views of the square loss for SDCA using batch size $b=1$} 
+		\label{fig:SDCA_squareLoss_b1}
+	\end{figure}
+	Figure \ref{fig:SDCA_squareLoss_b1} shows two views of the square loss of SDCA on the training and test data. One subfigure omits the initial square error.
+
+	\item
+	\begin{figure}
+		\centering
+		\includegraphics[width=.75\textwidth]{figures/SDCA_z1Loss_b1}
+		\caption{The classification error of SDCA on the training and test sets as a function of the epoch} 
+		\label{fig:SDCA_z1Loss_b1}
+	\end{figure}
+	Figure \ref{fig:SDCA_z1Loss_b1} plots the classification (0/1) loss on the training and test sets as a function of epochs of SDCA.
+
+	\newpage
+
+	\item
+	\begin{table}[h!]
+		\centering
+		\begin{tabular}{|c|c|c|c|}\hline
+		     & {\bf Square loss} & {\bf Classification loss} & {\bf Total mistakes}  \\ \hline
+		     Training	& 0.045556	& 0.001267	 & 76	\\ \hline
+		     Test    	& 0.093776	& 0.014500	 & 145	\\ \hline
+		\end{tabular}
+		\caption{Final losses of SDCA on the training and test sets using batch size $b=1$}
+		\label{tab:SDCA_final_loss_b1}
+	\end{table}
+	Table \ref{tab:SDCA_final_loss_b1} summarizes the best square and classification losses on the training and test sets, as well as the total number of mistakes made on each.
+
+	\item See Table \ref{tab:SDCA_final_loss_b1}.
+
+	\item SDCA is able to produce a solution with slightly better accuracy than SGD on the test set (and much better accuracy on the training set) in roughly the same amount of time (actually almost the exact same amount of time--SDCA only took about 17 seconds longer).
 \end{enumerate}
 
 
@@ -353,7 +446,7 @@ Let us choose a batch size $b=100$.
 
 \begin{enumerate}
 	\item One possibility is to just update the $\alpha_i$'s as specified in Equation \eqref{eq:update}. Is this ok?
-	\item Argue that the following update never decrease the value of $G$:
+	\item Argue that the following update never increases the value of $G$:
 	\begin{align}
 		\alpha_i \leftarrow \alpha_i+\frac{1}{b}\Delta\alpha_i, \, \quad w \leftarrow
 		w+\frac{1}{b}\frac{1}{\lambda}x_i \cdot \Delta\alpha_i
@@ -362,6 +455,41 @@ Let us choose a batch size $b=100$.
 	\item  Now use this algorithm with $b=100$. And provide the same training and test loss plots, for the square loss and classification loss as before. (Again, use a permuted order rather than complete randomization). Plot this with your earlier curves for $b=1$ and have the $x$ axis be the total number of points used. Note that $b$ steps on your $x$-axis will correspond to one update.
 	\item In terms of the \emph{total number of data points touched}, does this perform notably better or worse than what you had before, with the $b=1$?
 \end{enumerate}
+
+\solution
+
+\begin{enumerate}
+	\item No. Consider the extreme case when all $b$ $x_i$'s we select are the same (or are collinear). Since we compute all the $\Delta\alpha_i$'s without updating $w$, they could all end up having roughly the same value, say $\Delta \alpha$. When we go to update $w$, instead of modifying it how we would have before, our update is approximately
+	\begin{equation}
+		w\leftarrow w + \tfrac{b}{\lambda}x_i\cdot\Delta\alpha.
+	\end{equation}
+	This pushes $w$ a factor of $b$ too far in the direction $x_i$ (remember that all the $b$ samples are assumed to be roughly $x_i$).
+	\item Let $I$ be the set of indices which are to be updated in a given batch so that $|I|=b$. Note that for the same reasons \eqref{eq:update} was shown to be valid, updating any one component of $\alpha$ using the rule $\alpha_i\leftarrow \alpha_i+\Delta\alpha_i$ results in a decrease in $G$. Where we can run into problems is when we update many such components of $\alpha$ in this way before updating $w$. Observe that we can express all the updates to $\alpha$ in one batch as
+	\begin{equation}
+		\alpha\leftarrow \alpha+\tfrac1b\sum_{i\in I}\Delta\alpha_ie_i,
+	\end{equation}
+	where $e_i$ is again the $i$-th standard basis vector. Hence the new value of $G$ after such a series of updates is
+	\begin{equation}
+		G\left(\alpha+\tfrac1b\sum_{i\in I}\Delta\alpha_ie_i\right).
+	\end{equation}
+	Since $|I|=b$ this can be rewritten as
+	\begin{equation}
+		G\left(\tfrac1b\sum_{i\in I}\left(\alpha+\Delta\alpha_ie_i\right)\right),
+	\end{equation}
+	i.e. as a convex combination of points. Note that $\alpha+\Delta\alpha_ie_i$ is equivalent to the update for $\alpha_i$ given in \eqref{eq:update}. Then, as $G$ is convex, we have
+	\begin{align}
+		G\left(\alpha+\tfrac1b\sum_{i\in I}\Delta\alpha_ie_i\right) &=G\left(\tfrac1b\sum_{i\in I}\left(\alpha+\Delta\alpha_ie_i\right)\right)\\
+		&\leq \tfrac1b\sum_{i\in I}G(\alpha+\Delta\alpha_ie_i)\\
+		&\leq \tfrac1b\sum_{i\in I}G(\alpha)\\
+		&=G(\alpha).
+	\end{align}
+	Hence the proposed update never increases the value of $G$. The update for $w$ simply changes $w$ to reflect the updates made in the $b$ components of $\alpha$.
+
+	\item ***Plots***
+
+	\item ***Discussion***
+\end{enumerate}
+
 
 Now let us improve upon this algorithm. Consider the update rule with parameter $\gamma$:
 \begin{align}
@@ -376,6 +504,18 @@ where the update is performed on all of the chosen coordinates in the mini-batch
 	\item Now empirically (on our $b=100$ experiments) search a little to find a good choice for gamma. What value of $\gamma$ did you choose? What value  of $\gamma$ do things diverge?
 	\item  Now use this choice to redo your experiments. Provide the same training and test loss plots, for the square loss and classification loss as before. (Again, use a permuted order rather than complete randomization).
 	\item In terms of the \emph{total number of data points touched}, does this perform notably better than what you had before, for both SGD and for the $\gamma=1/b$ case? What have noticed about your total runtime?
+\end{enumerate}
+
+\solution
+
+\begin{enumerate}
+	\item Using the example from before where all of the samples in our batch are identical, i.e. they are all $(x_1,y_1)$, we saw that if we did not divide our batch updates by a factor of $b$, each term would contribute the same amount in the same direction to $w$ when the update $w\leftarrow w+\tfrac\gamma\lambda x_i\cdot\Delta\alpha_i$ was applied. $w$ would be pushed $b$ times too far in the direction of $x_i=x_1$. In this extreme we are forced to choose $\gamma=\tfrac1b$ to counteract the additive effect of all these updates. Of course the drawback of doing this is that we can only update each $\alpha_i$ by adding $\tfrac1b\Delta\alpha_i$ rather than adding the amount suggested by solving the optimization problem for a single coordinate, $\Delta\alpha_i$. In most circumstances, however, the examples will not be identical or even collinear, so the effects of the different updates will not accumulate in one direction when updating $w$. This should allow us to better optimize $G$ by choosing a larger value of $\gamma$, giving us better approximate solutions to the $b$ single-coordinate optimization problems for the $\alpha_i$'s.
+
+	\item ***Find a good value of $\gamma$***
+
+	\item ***Plots for this value of $\gamma$***
+
+	\item ***Performance discussion***
 \end{enumerate}
 
 \end{document}
