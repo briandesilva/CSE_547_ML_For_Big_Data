@@ -109,7 +109,9 @@
 \pagebreak
 
 \section*{Collaborators}
-I collaborated with Emily Dinan on Problem 1.5.
+I collaborated with Emily Dinan on problems 1.5, 2.2, and understanding how to do the batch updates for SDCA in problem 3.
+
+I collaborated with Weston Barger on problem 1.5.
 
 
 
@@ -294,6 +296,9 @@ Throughout this question you will use a mini-batch size of $1$.
 
 \solution
 
+The code for this problem is contained in {\tt hw3-2-1.py}.
+
+
 \begin{enumerate}
 	\item For this problem I used no regularization, a learning rate of $10^{-5} / (2\sqrt{t+1})$, where $t$ is the epoch, and set all initial weights to 0. My kernel bandwidth was half the approximate mean distance between points in the dataset. In order to approximate this distance I randomly sampled 100 pairs of points from the training data and took the mean of their Euclidean distances from one another. This parameter was on the order of $10^3$. To obtain the plots below I ran SGD for 10 epochs. The code took about two hours to run (including the time it took to compute the square and classification loss each epoch).
 
@@ -375,6 +380,8 @@ Choose a regularization parameter. Do this appropriately so you obtain a good te
 
 \solution
 
+The code for this problem is contained in {\tt hw3-2-2.py}.
+
 \begin{enumerate}
 	\item I chose $\lambda=1.0$ as my regularization parameter. I ran the method for one epoch using a variety of values of $\lambda$ and found this one to give the best 0/1 loss on the test set. The only other parameters to set were hyperparameters such as the number of epochs to run.
 
@@ -400,7 +407,7 @@ Choose a regularization parameter. Do this appropriately so you obtain a good te
 		\begin{subfigure}{0.49\textwidth}
 			\centering
 			\includegraphics[width=\linewidth]{figures/SDCA_squareLoss_zoomed_b1}
-			\caption{The square loss after 1 epoch for SDCA using batch size $b=1$}
+			\caption{The square loss after 1st epoch for SDCA using batch size $b=1$}
 		\end{subfigure}
 		\caption{Two views of the square loss for SDCA using batch size $b=1$} 
 		\label{fig:SDCA_squareLoss_b1}
@@ -411,7 +418,7 @@ Choose a regularization parameter. Do this appropriately so you obtain a good te
 	\begin{figure}
 		\centering
 		\includegraphics[width=.75\textwidth]{figures/SDCA_z1Loss_b1}
-		\caption{The classification error of SDCA on the training and test sets as a function of the epoch} 
+		\caption{The classification error of SDCA using $b=1$ on the training and test sets as a function of the epoch} 
 		\label{fig:SDCA_z1Loss_b1}
 	\end{figure}
 	Figure \ref{fig:SDCA_z1Loss_b1} plots the classification (0/1) loss on the training and test sets as a function of epochs of SDCA.
@@ -423,8 +430,8 @@ Choose a regularization parameter. Do this appropriately so you obtain a good te
 		\centering
 		\begin{tabular}{|c|c|c|c|}\hline
 		     & {\bf Square loss} & {\bf Classification loss} & {\bf Total mistakes}  \\ \hline
-		     Training	& 0.045556	& 0.001267	 & 76	\\ \hline
-		     Test    	& 0.093776	& 0.014500	 & 145	\\ \hline
+		     \textbf{Training}	& 0.043270	& 0.001333	 & 80	\\ \hline
+		     \textbf{Test}    	& 0.090068	& 0.013700	 & 137	\\ \hline
 		\end{tabular}
 		\caption{Final losses of SDCA on the training and test sets using batch size $b=1$}
 		\label{tab:SDCA_final_loss_b1}
@@ -433,11 +440,11 @@ Choose a regularization parameter. Do this appropriately so you obtain a good te
 
 	\item See Table \ref{tab:SDCA_final_loss_b1}.
 
-	\item SDCA is able to produce a solution with slightly better accuracy than SGD on the test set (and much better accuracy on the training set) in roughly the same amount of time (actually almost the exact same amount of time--SDCA only took about 17 seconds longer).
+	\item SDCA is able to produce a solution with slightly better accuracy than SGD on the test set (and much better accuracy on the training set) in roughly the same amount of time (actually almost the exact same amount of time).
 \end{enumerate}
 
 
-\subsection{Mini-batching (in the dual) and parallelization!}
+\section{Mini-batching (in the dual) and parallelization!}
 Now, let us understand parallelization issues with mini-batching. 
 
 Here instead of updating one coordinate at a time, we will update multiple coordinates. In particular, we will choose a batch of  $b$ coordinates and compute the $\Delta_i$'s of these coordinates as specified in Equation \eqref{eq:delta}.
@@ -457,6 +464,9 @@ Let us choose a batch size $b=100$.
 \end{enumerate}
 
 \solution
+
+The code for this problem is contained in {\tt hw3-2-2.py}.
+
 
 \begin{enumerate}
 	\item No. Consider the extreme case when all $b$ $x_i$'s we select are the same (or are collinear). Since we compute all the $\Delta\alpha_i$'s without updating $w$, they could all end up having roughly the same value, say $\Delta \alpha$. When we go to update $w$, instead of modifying it how we would have before, our update is approximately
@@ -485,9 +495,44 @@ Let us choose a batch size $b=100$.
 	\end{align}
 	Hence the proposed update never increases the value of $G$. The update for $w$ simply changes $w$ to reflect the updates made in the $b$ components of $\alpha$.
 
-	\item ***Plots***
+	\item
+	\begin{figure}
+		\centering
+		\begin{subfigure}{0.49\textwidth}
+			\centering
+			\includegraphics[width=\linewidth]{figures/SDCA_squareLoss_b100}
+			\caption{The square loss for SDCA}
+		\end{subfigure}
+		\begin{subfigure}{0.49\textwidth}
+			\centering
+			\includegraphics[width=\linewidth]{figures/SDCA_squareLoss_zoomed_b100}
+			\caption{The square loss for SDCA after 1st epoch}
+		\end{subfigure}
+		\caption{Two views of the square loss for SDCA with different batch sizes} 
+		\label{fig:SDCA_squareLoss_b100}
+	\end{figure}
 
-	\item ***Discussion***
+	\begin{figure}
+		\centering
+		\includegraphics[width=.75\textwidth]{figures/SDCA_z1Loss_b100}
+		\caption{The classification error of SDCA on the training and test sets as a function of the epoch} 
+		\label{fig:SDCA_z1Loss_b100}
+	\end{figure}
+
+	\begin{table}
+		\centering
+		\begin{tabular}{|c|c|c|c|}\hline
+		     & {\bf Square loss} & {\bf Classification loss} & {\bf Total mistakes}  \\ \hline
+		     \textbf{Training}	& 0.087129	& 0.021067	 & 1264	\\ \hline
+		     \textbf{Test}    	& 0.092429	& 0.023800	 & 238	\\ \hline
+		\end{tabular}
+		\caption{Final losses of SDCA on the training and test sets using batch size $b=100$}
+		\label{tab:SDCA_final_loss_b100}
+	\end{table}
+
+	Figure \ref{fig:SDCA_squareLoss_b100} gives two perspectives of the square loss of SDCA on the training and testing sets when different batch sizes are used. The horizontal axis is the number of points used by the two variants of SDCA. Similarly, Figure \ref{fig:SDCA_z1Loss_b100} plots the classification loss for these methods. Table \ref{tab:SDCA_final_loss_b100} summarizes the final losses incurred by SDCA using batch size 100.
+
+	\item SDCA with batch size 100 performs noticeably worse than SDCA with batch size 1, when each is allowed to use the same number of data points. From Figure \ref{fig:SDCA_z1Loss_b100} we see that although the larger batch size seems to produce a steadier decay in the classificaiton loss, the smaller batch size gives superior results using many fewer examples. After only one epoch (60,000 data points touched) SDCA using batch size 1 has achieved better classification loss on the test set than SDCA with batch size 100 does on the training set after touching 900,000 points. In the next part of the problem we try to improve on this. It should be noted that SDCA with a larger batch size did run a few minutes faster than SDCA with batch size 1.
 \end{enumerate}
 
 
@@ -508,14 +553,52 @@ where the update is performed on all of the chosen coordinates in the mini-batch
 
 \solution
 
+The code for this problem is contained in {\tt hw3-2-2.py}.
+
 \begin{enumerate}
 	\item Using the example from before where all of the samples in our batch are identical, i.e. they are all $(x_1,y_1)$, we saw that if we did not divide our batch updates by a factor of $b$, each term would contribute the same amount in the same direction to $w$ when the update $w\leftarrow w+\tfrac\gamma\lambda x_i\cdot\Delta\alpha_i$ was applied. $w$ would be pushed $b$ times too far in the direction of $x_i=x_1$. In this extreme we are forced to choose $\gamma=\tfrac1b$ to counteract the additive effect of all these updates. Of course the drawback of doing this is that we can only update each $\alpha_i$ by adding $\tfrac1b\Delta\alpha_i$ rather than adding the amount suggested by solving the optimization problem for a single coordinate, $\Delta\alpha_i$. In most circumstances, however, the examples will not be identical or even collinear, so the effects of the different updates will not accumulate in one direction when updating $w$. This should allow us to better optimize $G$ by choosing a larger value of $\gamma$, giving us better approximate solutions to the $b$ single-coordinate optimization problems for the $\alpha_i$'s.
 
-	\item ***Find a good value of $\gamma$***
+	\item To find a good value of $\gamma$ I tested a set of uniformly spaced points in the interval $(1/b,1]$ to see which led to the best losses after one epoch of SDCA. I also tested $\gamma=1.5,2,$ and 4 In the end I chose to use $\gamma=0.85$ since both $\gamma=0.801$ and $\gamma=0.902$ exhibited good performance on the training and test sets. In my experiments things started to diverge when $\gamma=4$, but converged when $\gamma=2$.
 
-	\item ***Plots for this value of $\gamma$***
+	\item
 
-	\item ***Performance discussion***
+	\begin{figure}
+		\centering
+		\begin{subfigure}{0.49\textwidth}
+			\centering
+			\includegraphics[width=\linewidth]{figures/SDCA_squareLoss_b100_gamma0-85}
+			\caption{The square loss for SDCA}
+		\end{subfigure}
+		\begin{subfigure}{0.49\textwidth}
+			\centering
+			\includegraphics[width=\linewidth]{figures/SDCA_squareLoss_zoomed_b100_gamma0-85}
+			\caption{The square loss after 1st epoch for SDCA}
+		\end{subfigure}
+		\caption{Two views of the square loss for SDCA with batch size 100 and $\gamma=0.85$} 
+		\label{fig:SDCA_squareLoss_b100_gamma}
+	\end{figure}
+
+	\begin{figure}
+		\centering
+		\includegraphics[width=.75\textwidth]{figures/SDCA_z1Loss_b100_gamma0-85}
+		\caption{The classification error of SDCA with batch size 100 and $\gamma=0.85$ on the training and test sets as a function of the epoch} 
+		\label{fig:SDCA_z1Loss_b100_gamma}
+	\end{figure}
+
+	\begin{table}
+		\centering
+		\begin{tabular}{|c|c|c|c|}\hline
+		     & {\bf Square loss} & {\bf Classification loss} & {\bf Total mistakes}  \\ \hline
+		     \textbf{Training}	& 0.044858	& 0.001400	 & 84	\\ \hline
+		     \textbf{Test}    	& 0.087752	& 0.013800	 & 138	\\ \hline
+		\end{tabular}
+		\caption{Final losses of SDCA on the training and test sets using batch size $b=100$ and $\gamma=0.85$}
+		\label{tab:SDCA_final_loss_b100_gamma}
+	\end{table}
+
+	Figure \ref{fig:SDCA_squareLoss_b100_gamma} shows two perspectives of the square loss on the training and test sets as a function of number of points touched by SDCA. We used a batch size of $b=100$ and $\gamma=0.85$. Figure \ref{fig:SDCA_z1Loss_b100_gamma} plots the classification loss for this choice of paramters. Table \ref{tab:SDCA_final_loss_b100_gamma} gives a summary of the losses after 15 epochs (i.e. 900,000 data points touched).
+
+	\item In terms of the total number of data points visited, this version of batched SDCA performs much better than the version with $\gamma=1/b$. Its performance, again with respect to examples used, is very similar to that of unbatched SDCA (compare Figure \ref{fig:SDCA_z1Loss_b100_gamma} with Figure \ref{fig:SDCA_z1Loss_b1}). Both attain classification losses below 0.02 on the test set after only one pass through the data (60,000 points touched). If our goal were to run until a desired accuracy was obtained, this method would be the fastest of those studied. As noted before, batching decreases the time required to train for a fixed number of epochs. Since batching using $\gamma=0.85$ produces as accurate a model as not batching, and does it faster, it is preferable in this case.
 \end{enumerate}
 
 \end{document}

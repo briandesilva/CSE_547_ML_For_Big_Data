@@ -129,8 +129,6 @@ def em_GMM(numClasses,X,Mu=None,TOL=1.e-6,MAX_ITS=300):
 		# Update means
 		Nk = np.sum(R,0)		# Weighted number of points assigned to each class
 		Mu = R.T.dot(X) / Nk[:,None]
-		# for k in xrange(numClasses):
-			# Mu[k,:] = R[:,k].T.dot(X) / Nk[k]
 
 		# Update covariance matrices
 		for k in xrange(numClasses):
@@ -265,10 +263,10 @@ def plot_gmm(numClasses,X,labels,Mu,S,save=False):
 # -----------------------------------------------
 
 
-# # Read in the data
-# data = pd.read_csv('2DGaussianMixture.csv').as_matrix()
-# true_labels = data[:,0]
-# X = data[:,1:]
+# Read in the data
+data = pd.read_csv('2DGaussianMixture.csv').as_matrix()
+true_labels = data[:,0]
+X = data[:,1:]
 
 # ---------------------------
 # Part (b)
@@ -338,20 +336,20 @@ def plot_gmm(numClasses,X,labels,Mu,S,save=False):
 # ---------------------------
 # Part (g)
 # ---------------------------
-# numClasses = 3
-# labels, mu, S, log_like = em_GMM(numClasses,X,kmeans_pp_init(numClasses,X))
+numClasses = 3
+labels, mu, S, log_like = em_GMM(numClasses,X,kmeans_pp_init(numClasses,X))
 
-# plot_gmm(numClasses,X,labels,mu,S,True)
-# plt.show()
+plot_gmm(numClasses,X,labels,mu,S,True)
+plt.show()
 
 
-# plt.figure()
-# plt.plot(range(len(log_like)),log_like,'b-o')
-# plt.xlabel('Iteration')
-# plt.ylabel('EM Log-likelihood')
-# plt.title('Log-likelihood as a function of iterations of EM')
-# plt.savefig('figures/EM_likelihood_2-3g.png')
-# plt.show()
+plt.figure()
+plt.plot(range(len(log_like)),log_like,'b-o')
+plt.xlabel('Iteration')
+plt.ylabel('EM Log-likelihood')
+plt.title('Log-likelihood as a function of iterations of EM')
+plt.savefig('figures/EM_likelihood_2-3g.png')
+plt.show()
 
 
 

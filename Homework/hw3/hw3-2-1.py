@@ -297,10 +297,20 @@ plt.plot(epochs,z1LossTrain[1:],'b-o',epochs,z1LossTrainAvg[1:],'k--o',
 	epochs,z1LossTest[1:],'r-x',epochs,z1LossTestAvg[1:],'g--x',linewidth=1.5)
 plt.xlabel('Epoch')
 plt.ylabel('0/1 loss')
-# plt.legend(['Training (w)','Training (wAvg)','Test (w)', 'Test (wAvg)'])
 plt.legend([r"Training ($w_\tau$)",r"Training ($\overline w_\tau$)", r"Test ($w_\tau$)", r"Test ($\overline w_\tau$)" ])
 plt.title('0/1 loss (SGD)')
 plt.show()
+
+# Zoomed in version of square loss plot
+epochs = range(1,numEpochs+1)
+plt.figure(3)
+plt.plot(epochs,squareLossTrain[1:],'b-o',epochs,squareLossTrainAvg[1:],'k--o',
+	epochs,squareLossTest[1:],'r-x',epochs,squareLossTestAvg[1:],'g--x',linewidth=1.5)
+plt.xlabel('Epoch')
+plt.ylabel('Square loss')
+plt.legend([r"Training ($w_\tau$)",r"Training ($\overline w_\tau$)", r"Test ($w_\tau$)", r"Test ($\overline w_\tau$)" ])
+plt.title('Square loss (SGD)')
+
 
 # Print out final 0/1 and square loss for average weights
 print "Square loss (training): %f" % (squareLossTrainAvg[-1])
@@ -321,7 +331,6 @@ print "Total misclassifications (test): %f" % (z1LossTestAvg[-1] * testProj.shap
 # Total misclassifications (test): 165.000000
 
 
-
 # Print out final 0/1 and square loss for standard weights
 print "Square loss (training): %f" % (squareLossTrain[-1])
 print "0/1 loss (training): %f" % (z1LossTrain[-1])
@@ -339,15 +348,3 @@ print "Total misclassifications (test): %f" % (z1LossTest[-1] * testProj.shape[0
 # 0/1 loss (test): 0.017400
 # Total misclassifications (training): 555.000000
 # Total misclassifications (test): 174.000000
-
-
-
-# # Zoomed in version of square loss plot
-# epochs = range(1,numEpochs+1)
-# plt.figure(1)
-# plt.plot(epochs,squareLossTrain[1:],'b-o',epochs,squareLossTrainAvg[1:],'k--o',
-# 	epochs,squareLossTest[1:],'r-x',epochs,squareLossTestAvg[1:],'g--x',linewidth=1.5)
-# plt.xlabel('Epoch')
-# plt.ylabel('Square loss')
-# plt.legend([r"Training ($w_\tau$)",r"Training ($\overline w_\tau$)", r"Test ($w_\tau$)", r"Test ($\overline w_\tau$)" ])
-# plt.title('Square loss (SGD)')

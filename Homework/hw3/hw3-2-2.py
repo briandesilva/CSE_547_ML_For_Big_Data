@@ -1,5 +1,5 @@
 # CSE 547 Homework 3
-# Problem 2.2: SDCA
+# Problem 2.2 and 3: SDCA
 
 # Brian de Silva
 # 1422824
@@ -59,7 +59,6 @@ class SDCAClassifier:
 	# ---G-loss---
 	# 
 	# Returns the current G-loss
-	# ***Should change if alpha changed to have nClasses rows instead of nClasses columns***
 	def gLoss(self,Y):
 		loss = (np.sum(self.alpha**2) + self.reg * np.sum(self.W**2)) / 2.0
 		for k in np.arange(self.nClasses):
@@ -133,15 +132,14 @@ class SDCAClassifier:
 		#  If done, compute final losses
 		(loss['squareTrain'][-1], loss['z1Train'][-1]) = self.getLoss(YTrain,XTrain)
 		(loss['squareTest'][-1], loss['z1Test'][-1]) = self.getLoss(YTest,XTest)
-		loss['gTrain'][-1] = self.gLoss(YTrain)
+		if self.b==1:
+			loss['gTrain'][-1] = self.gLoss(YTrain)
 
 		# Print total time to solve problem
 		tTrain1 = time.time()
 		print "Time to carry out %d epochs of SDCA with batch size %d: %f\n" %(nEpochs,self.b,tTrain1-tTrain0)
 
 		return loss
-
-
 
 
 
@@ -232,7 +230,6 @@ plt.ylabel('Square loss')
 plt.title('Square loss (SDCA with b=1)')
 plt.legend(['Training','Test'])
 
-
 # Plot 0/1 loss on training and test sets
 plt.figure(3)
 plt.plot(epochs[1:],loss['z1Train'][1:],'b-o',epochs[1:],loss['z1Test'][1:],'r-o')
@@ -241,11 +238,15 @@ plt.ylabel('0/1 loss')
 plt.title('0/1 loss (SDCA with b=1)')
 plt.legend(['Training','Test'])
 
-# Some code to figure out best lambda
-# print "-----------------------------------------------------------------"
-# print "----------------Results for lambda = %f--------------------------"%reg
-# print "-----------------------------------------------------------------"
-# Output loss
+# Zoomed in version of the square loss (omits initial loss)
+plt.figure(4)
+plt.plot(epochs[1:],loss['squareTrain'][1:],'b-o',epochs[1:],loss['squareTest'][1:],'r-o')
+plt.xlabel('Epoch')
+plt.ylabel('Square loss')
+plt.title('Square loss (SDCA with b=1)')
+plt.legend(['Training','Test'])
+
+# Output final loss
 print "Square loss (training): %f" %loss['squareTrain'][-1]
 print "0/1 loss (training): %f" %loss['z1Train'][-1]
 print "Square loss (test): %f" %loss['squareTest'][-1]
@@ -257,14 +258,17 @@ print "Total mistakes on training set: %f" %(loss['z1Train'][-1] * train_label.s
 print "Total mistakes on test set: %f" %(loss['z1Test'][-1] * test_label.shape[0])
 print "\n\n\n"
 
-# Zoomed in version of the square loss (omits initial loss)
-plt.figure(4)
-plt.plot(epochs[1:],loss['squareTrain'][1:],'b-o',epochs[1:],loss['squareTest'][1:],'r-o')
-plt.xlabel('Epoch')
-plt.ylabel('Square loss')
-plt.title('Square loss (SDCA without batching)')
-plt.legend(['Training','Test'])
-# plt.show()
+# Output: 
+# Square loss (training)        : 0.043270
+# 0/1 loss (training)           : 0.001333
+# Square loss (test)            : 0.090068
+# 0/1 loss (test)               : 0.013700
+# G-loss (training)             : -2.124226
+# Total mistakes on training set: 80.000000
+# Total mistakes on test set    : 137.000000
+
+
+
 
 
 
@@ -283,22 +287,14 @@ SDCA_batch = SDCAClassifier(feats,sigma,reg,nClasses,batchSize)
 # Train model
 loss_batch = SDCA_batch.train(train_img,test_img,train_label,test_label,nEpochs)
 
-# Plot G-loss on training set
-epochs = np.arange(nEpochs+1) * train_img.shape[0]
-# plt.figure(5)
-# plt.plot(epochs,loss_batch['gTrain'],'b-o',linewidth=1.5)
-# plt.xlabel('Points used')
-# plt.ylabel('G-loss')
-# plt.title('G-loss (SDCA with b=100)')
-
 # Plot square loss on training and test sets
+epochs = np.arange(nEpochs+1) * train_img.shape[0]
 plt.figure(5)
 plt.plot(epochs,loss_batch['squareTrain'],'b-o',epochs,loss_batch['squareTest'],'r-o',epochs,loss['squareTrain'],'k--o',epochs,loss['squareTest'],'g--o')
 plt.xlabel('Points used')
 plt.ylabel('Square loss')
 plt.title('Square loss (SDCA with b=100)')
 plt.legend(['Training (b=100)','Test (b=100)','Training (b=1)','Test (b=1)'])
-
 
 # Plot 0/1 loss on training and test sets
 plt.figure(6)
@@ -307,13 +303,17 @@ plt.xlabel('Points used')
 plt.ylabel('0/1 loss')
 plt.title('0/1 loss (SDCA with b=100)')
 plt.legend(['Training (b=100)','Test (b=100)','Training (b=1)','Test (b=1)'])
-# plt.show()
 
-# Some code to figure out best lambda
-# print "-----------------------------------------------------------------"
-# print "----------------Results for lambda = %f--------------------------"%reg
-# print "-----------------------------------------------------------------"
-# Output loss
+# Plot zoomed-in version of square loss
+plt.figure(7)
+plt.plot(epochs[1:],loss_batch['squareTrain'][1:],'b-o',epochs[1:],loss_batch['squareTest'][1:],'r-o',epochs[1:],loss['squareTrain'][1:],'k--o',epochs[1:],loss['squareTest'][1:],'g--o')
+plt.xlabel('Points used')
+plt.ylabel('Square loss')
+plt.title('Square loss (SDCA with b=100)')
+plt.legend(['Training (b=100)','Test (b=100)','Training (b=1)','Test (b=1)'])
+plt.show()
+
+# Print the final losses
 print "Square loss (training): %f" %loss_batch['squareTrain'][-1]
 print "0/1 loss (training): %f" %loss_batch['z1Train'][-1]
 print "Square loss (test): %f" %loss_batch['squareTest'][-1]
@@ -325,12 +325,106 @@ print "Total mistakes on training set: %f" %(loss_batch['z1Train'][-1] * train_l
 print "Total mistakes on test set: %f" %(loss_batch['z1Test'][-1] * test_label.shape[0])
 print "\n\n\n"
 
+# Output:
+# Square loss (training)        : 0.087129
+# 0/1 loss (training)           : 0.021067
+# Square loss (test)            : 0.092429
+# 0/1 loss (test)               : 0.023800
+# G-loss (training)             : -0.074742
+# Total mistakes on training set: 1264.000000
+# Total mistakes on test set    : 238.000000
 
-plt.figure(7)
-plt.plot(epochs[1:],loss_batch['squareTrain'][1:],'b-o',epochs[1:],loss_batch['squareTest'][1:],'r-o',epochs[1:],loss['squareTrain'][1:],'k--o',epochs[1:],loss['squareTest'][1:],'g--o')
-plt.plot(epochs[1:],loss_batch['squareTrain'][1:],'b-o',epochs[1:],loss_batch['squareTest'][1:],'r-o')
+
+
+
+# ------------------------------------------------------------------------------------------
+# -------------Run again with batchSize = 100 and different learning rate-------------------
+# ------------------------------------------------------------------------------------------
+
+# 
+# Empirically determine a good value of gamma
+# 
+
+batchSize = 100
+gammas = np.linspace(1./batchSize,1,11)[1:]
+gammas = [1.5, 2, 4, 10, 20, 40, 100]
+
+for gamma in gammas:
+	print "-----------------------------------------------------------------"
+	print "-----------------------Testing gamma = %f------------------"%gamma
+	print "-----------------------------------------------------------------"
+
+	SDCA_gamma = SDCAClassifier(feats,sigma,reg,nClasses,batchSize,gamma=gamma)
+
+	# Train model
+	loss_gamma = SDCA_gamma.train(train_img,test_img,train_label,test_label,nEpochs=1)
+
+	# Print loss
+	
+	print "\n\nSquare loss (training): %f" %loss_gamma['squareTrain'][-1]
+	print "0/1 loss (training): %f" %loss_gamma['z1Train'][-1]
+	print "Square loss (test): %f" %loss_gamma['squareTest'][-1]
+	print "0/1 loss (test): %f" %loss_gamma['z1Test'][-1]
+	print "\n\n"
+
+
+
+# 
+# Actually run SDCA with best choice of gamma
+# 
+
+gamma = 0.85
+batchSize = 100
+
+# Initialize model
+SDCA_gamma = SDCAClassifier(feats,sigma,reg,nClasses,batchSize,gamma=gamma)
+
+# Train model
+loss_gamma = SDCA_gamma.train(train_img,test_img,train_label,test_label,nEpochs)
+
+# Plot square loss on training and test sets
+epochs = np.arange(nEpochs+1) * train_img.shape[0]
+plt.figure()
+plt.plot(epochs,loss_gamma['squareTrain'],'b-o',epochs,loss_gamma['squareTest'],'r-o')
 plt.xlabel('Points used')
 plt.ylabel('Square loss')
-plt.title('Square loss (SDCA with b=100)')
-plt.legend(['Training (b=100)','Test (b=100)','Training (b=1)','Test (b=1)'])
+plt.title('Square loss (SDCA with b=100, gamma=0.85)')
+plt.legend(['Training','Test'])
+
+# Plot 0/1 loss on training and test sets
+plt.figure()
+plt.plot(epochs[1:],loss_gamma['z1Train'][1:],'b-o',epochs[1:],loss_gamma['z1Test'][1:],'r-o')
+plt.xlabel('Points used')
+plt.ylabel('0/1 loss')
+plt.title('0/1 loss (SDCA with b=100, gamma=0.85)')
+plt.legend(['Training','Test'])
+
+# Zoomed in version of the square loss (omits initial loss)
+plt.figure()
+plt.plot(epochs[1:],loss_gamma['squareTrain'][1:],'b-o',epochs[1:],loss_gamma['squareTest'][1:],'r-o')
+plt.xlabel('Points used')
+plt.ylabel('Square loss')
+plt.title('Square loss (SDCA with b=100, gamma=0.85)')
+plt.legend(['Training','Test'])
 plt.show()
+
+# Output final loss
+print "Square loss (training): %f" %loss_gamma['squareTrain'][-1]
+print "0/1 loss (training): %f" %loss_gamma['z1Train'][-1]
+print "Square loss (test): %f" %loss_gamma['squareTest'][-1]
+print "0/1 loss (test): %f" %loss_gamma['z1Test'][-1]
+print "G-loss (training): %f" %loss_gamma['gTrain'][-1]
+
+# Output total mistakes
+print "Total mistakes on training set: %f" %(loss_gamma['z1Train'][-1] * train_label.shape[0])
+print "Total mistakes on test set: %f" %(loss_gamma['z1Test'][-1] * test_label.shape[0])
+print "\n\n\n"
+
+# Output:
+# Square loss (training)        : 0.044858
+# 0/1 loss (training)           : 0.001400
+# Square loss (test)            : 0.087752
+# 0/1 loss (test)               : 0.013800
+# G-loss (training)             : 0.000000
+# Total mistakes on training set: 84.000000
+# Total mistakes on test set    : 138.000000

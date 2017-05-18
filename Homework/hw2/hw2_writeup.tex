@@ -88,8 +88,8 @@
 %   - Author
 %
 
-\newcommand{\hmwkTitle}{CSE 547 Homework 2}
-\newcommand{\hmwkDueDate}{April 26, 2017}
+\newcommand{\hmwkTitle}{Homework 2}
+\newcommand{\hmwkDueDate}{May 1, 2017}
 \newcommand{\hmwkClass}{CSE 547}
 \newcommand{\hmwkAuthorName}{Brian de Silva}
 
@@ -147,7 +147,7 @@
 \pagebreak
 
 \section*{Collaborators}
-I collaborated with Weston Barger and Emily Dinan on ***
+I collaborated with Weston Barger and Emily Dinan throughout the assignment.
 
 % Problem 1
 \begin{homeworkProblem}
@@ -208,8 +208,24 @@ I collaborated with Weston Barger and Emily Dinan on ***
 	\[
 		\Pr\left(\left|\norm{\phi(u-v)}^2-\norm{u-v}^2 \right|\geq \epsilon\norm{u-v}^2 \right)\leq 1 - \left(1-2e^{-(\epsilon^2-\epsilon^3)m/4}\right) = 2e^{-(\epsilon^2-\epsilon^3)m/4}.
 	\]
+	% Now, recall that for any two events $A$ and $B$, $\Pr(A\wedge B)\leq \Pr(A)+\Pr(B)$. Letting $A$ be the event that $$A:~~\left|\norm{\phi(u+v)}^2-\norm{u+v}^2 \right|\geq \epsilon\norm{u+v}^2$$ and $B$ be the event $$B:~~\left|\norm{\phi(u-v)}^2-\norm{u-v}^2 \right|\geq \epsilon\norm{u-v}^2,$$ it follows that the probability of both occuring is at most $\Pr(A)+\Pr(B)\leq4e^{-(\epsilon^2-\epsilon^3)m/4}$. We saw previously that 
 
-	Now, recall that for any two events $A$ and $B$, $\Pr(A\wedge B)\leq \Pr(A)+\Pr(B)$. Letting $A$ be the event that $$A:~~\left|\norm{\phi(u+v)}^2-\norm{u+v}^2 \right|\geq \epsilon\norm{u+v}^2$$ and $B$ be the event $$B:~~\left|\norm{\phi(u-v)}^2-\norm{u-v}^2 \right|\geq \epsilon\norm{u-v}^2,$$ it follows that the probability of both occuring is at most $\Pr(A)+\Pr(B)\leq4e^{-(\epsilon^2-\epsilon^3)m/4}$. We saw previously that 
+  Let $A$ be the event that
+  \[
+    A:=~~\left|\norm{\phi(u+v)}^2-\norm{u+v}^2 \right|\geq \epsilon\norm{u+v}^2
+  \]
+
+  and $B$ be the event 
+  \[
+    B:=~~\left|\norm{\phi(u-v)}^2-\norm{u-v}^2 \right|\geq \epsilon\norm{u-v}^2.
+  \]
+
+  If we assume that $A$ and $B$ are independent events then we have $\Pr(A\wedge B)=\Pr(A)\Pr(B)$. It follows that 
+  \[
+    \Pr(A\wedge B)=\Pr(A)\Pr(B)\leq\left(2e^{-(\epsilon^2-\epsilon^3)m/4} \right)^2=4e^{-(\epsilon^2-\epsilon^3)m/2}\leq 4e^{-(\epsilon^2-\epsilon^3)m/4}.
+  \]
+
+  We saw previously that
 	\begin{align*}
 		&\left|\norm{\phi(u+v)}^2-\norm{u+v}^2 \right|\geq \epsilon\norm{u+v}^2\\
 		\iff & -\epsilon\norm{u+v}^2\leq \norm{u+v}^2-\norm{\phi(u)+\phi(v)}^2\leq \epsilon\norm{u+v}^2

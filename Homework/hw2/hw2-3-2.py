@@ -198,8 +198,7 @@ def em_GMM(numClasses,X,true_labels,Mu=None,TOL=1.e-6,MAX_ITS=300):
 
 # Read in the data
 f_mat = mmread('bbc_data/bbc.mtx').tocsr()			# term-document frequency matrix
-# classes = pd.read_csv('bbc_data/bbc.classes',sep=' ',header=None).as_matrix()		# The document classes
-classes = np.loadtxt('bbc_data/bbc.classes',delimiter=" ")
+classes = np.loadtxt('bbc_data/bbc.classes',delimiter=" ")		# The document classes
 file = open('bbc_data/bbc.terms','r')
 terms = file.read().splitlines()					# The terms for each row in f_mat
 file.close()
