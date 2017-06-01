@@ -1,0 +1,250 @@
+\documentclass{article}
+\usepackage{fancyhdr}
+\usepackage{extramarks}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{caption,subcaption}
+\usepackage{subfig}
+\usepackage{enumerate}          % For enumerates indexed by letters
+\usepackage{bm}                 % For bold letters
+\usepackage{algorithm2e}        % For pseudocode
+\usepackage{url}                % So texttt wraps instead of creating hbox
+\usepackage{mathtools}
+\mathtoolsset{showonlyrefs}		% So only referenced equations are numbered
+
+%
+% Basic Document Settings
+%
+
+\topmargin=-0.45in
+\evensidemargin=0in
+\oddsidemargin=0in
+\textwidth=7in
+\textheight=9.0in
+\headsep=0.25in
+\linespread{1.1}
+\pagestyle{fancy}
+
+\lhead{\hmwkAuthorName}
+\chead{\hmwkClass:\ \hmwkTitle}
+\rhead{\firstxmark}
+\lfoot{\lastxmark}
+\cfoot{\thepage}
+
+\renewcommand\headrulewidth{0.4pt}
+\renewcommand\footrulewidth{0.4pt}
+
+\setlength\parindent{0pt}
+
+
+%
+% Homework Details
+%   - Title
+%   - Due date
+%   - Class
+%   - Section/Time
+%   - Instructor
+%   - Author
+%
+
+\newcommand{\hmwkTitle}{CSE 547 Homework 4}
+\newcommand{\hmwkDueDate}{June 5, 2017}
+\newcommand{\hmwkClass}{CSE 547}
+\newcommand{\hmwkAuthorName}{Brian de Silva}
+
+%
+% Title Page
+%
+
+\title{
+    \vspace{2in}
+    \textmd{\textbf{\hmwkClass:\ \hmwkTitle}}\\
+    \normalsize\vspace{0.1in}\small{Due\ on\ \hmwkDueDate\ }\\
+    \vspace{3in}
+}
+
+\author{\textbf{\hmwkAuthorName}}
+\date{}
+
+\renewcommand{\part}[1]{\textbf{\large Part \Alph{partCounter}}\stepcounter{partCounter}\\}
+
+%
+% Various Helper Commands
+%
+
+% Useful for algorithms
+\newcommand{\alg}[1]{\textsc{\bfseries \footnotesize #1}}
+
+% For derivatives
+\newcommand{\deriv}[1]{\frac{\mathrm{d}}{\mathrm{d}x} (#1)}
+
+% For partial derivatives
+\newcommand{\pd}[2]{\frac{\partial}{\partial #1} (#2)}
+
+\newcommand{\pdd}[2]{\frac{\partial #1}{\partial #2}}
+
+% Integral dx
+\newcommand{\dx}{\mathrm{d}x}
+
+% Alias for the Solution section header
+\newcommand{\solution}{\textbf{\vskip 0.2cm \large Solution:\\}}
+
+% Useful commands
+\newcommand{\bbm}{\begin{bmatrix}}
+\newcommand{\ebm}{\end{bmatrix}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\dtdx}{\frac{\Delta t}{\Delta x}}
+\newcommand{\half}{\frac12}
+\newcommand{\pr}[1]{\text{Pr}\left(#1\right)}
+\newcommand{\E}[1]{\mathbb{E}\left(#1\right)}
+
+
+\begin{document}
+\maketitle
+\pagebreak
+
+\section*{Collaborators}
+I collaborated with ***
+
+
+% Problem 1
+\section{Logarithmic Regret of UCB}
+
+
+We will consider the mulit-armed bandit setting discussed in class, where the actions $a \in [K]$, $\mu_a$ is the mean reward provided by arm $a$, and $X_t$ is reward observed at time $t$ if we pull arm $a$.
+
+Let $N_{a,t}$ be the number of times we pulled arm $a$ up to time $t$. By the Hoeffding's bound, a valid confidence interval at time $t$ is: with probability greater than $1-\delta$,
+\[
+	| \hat \mu_{a,t} - \mu_a | \leq c_1 \sqrt{\frac{\log(1/\delta)}{N_{a,t}}}
+\]
+where $c_1$ is a universal constant.
+
+Recall $\mu_*=\max_i \mu_i$. Define $\Delta_i$ as:
+\[
+	\Delta_i = \mu_* - \mu_i 
+\]
+
+\begin{enumerate}
+	%\setcounter{enumi}{4} 
+	\item For this part, let us consider an arbitrary algorithm. Provide a confidence bound that is valid \emph{for all the arms and for all time steps $t\leq T$}. In particular, show that:
+	\[
+		\Pr\left( \forall t,a, \, | \hat \mu_{a,t} - \mu_a | \leq c_2 \sqrt{\frac{\log(TK/\delta)}{N_{a,t}}} \right)\geq 1-\delta
+	\]
+	where $c_2$ is an appropriately chosen universal constant.
+	%(\emph{Hint:} %Note that we must use the union bound appropriately.  Also, note that %$\sum_{j=1}^\infty \frac{1}{j^2}$ is finite. Incidentally, the sum is actually $\pi^2/6$.).
+
+	\item  Now consider the $UCB$ algorithm (using this confidence interval). Argue that the total number of times that any sub-optimal arm $a$ will be pulled up to time $T$ will be bounded as follows:
+	\[
+		N_{a,T} \leq c_3 \frac{\log(T/\delta)}{\Delta_a^2} 
+	\]
+	for some constant $c_3$.
+	% (\emph{Hint:} Under what condition, in terms of $\Delta_i$, are we guaranteed not to pull arm $a$ at time $t$).
+
+	\item Now show that the total regret of UCB is bounded as follows: 
+	\[
+		T \mu_* - \E{\sum_{t\leq T} X_t}   \leq c_3 \sum_{i=1}^K\frac{\log(T/\delta)}{\Delta_i} + \delta T
+	\]
+	% (\emph{Hint:} How much regret do we pay for incorrectly pulling arm $a$? Also, note that, trivially, the largest expected regret for any algorithm is at most $T$.).
+	Finally, observe that if we run the UCB algorithm with $\delta=1/T$, then the regret bound of UCB is:
+	\[
+		T \mu_* - \E{\sum_{t\leq T} X_t}   \leq c_4 \sum_{i=1}^K\frac{\log(T)}{\Delta_i}
+	\]
+	for another appropriately chosen universal constant $c_4$. (Note that for this setting of $\delta$, our confidence intervals are still $\mathcal{O} \sqrt{\frac{\log(T)}{N_{a,t}}}$).
+\end{enumerate}
+
+\solution
+
+\begin{enumerate}
+	\item Recall that Hoeffding's bound gives us that
+	\begin{equation}
+	\begin{array}{crcl}
+		& \pr{|\hat \mu_{a,t}-\mu_a|\geq B} & \leq & 2\exp(-2B^2 N_{a,t})\\
+		\implies & \pr{|\hat \mu_{a,t}-\mu_a|\leq B} & = & 1 - \pr{|\hat \mu_{a,t}-\mu_a|\geq B}\\
+		& & \leq & 1 - 2\exp(-2B^2N_{a,t}).
+	\end{array}
+	\end{equation}
+	Using this along with the union bound (which states $\pr{\bigcup_{i=1}^NA_i}\leq\sum_{i=1}^N\pr{A_i}$), we have
+	\begin{align}
+		\pr{\exists a~\text{or}~t~\text{s.t.}~ |\hat \mu_{a,t}-\mu_a| \geq B_{a,t} } &= \pr{|\hat \mu_{1,1}-\mu_1|\geq B_{1,1}\vee |\hat \mu_{1,2}-\mu_1|\geq B_{1,2} \vee \dots \vee |\hat \mu_{K,T}-\mu_K|\geq B_{K,T}}\\
+		&\leq\sum_{a=1}^K\sum_{t=1}^T\pr{|\hat \mu_{a,t}-\mu_a|\geq B_{a,t}}\\
+		&= \sum_{a=1}^K\sum_{t=1}^T2\exp(-2B_{a,t}^2N_{a,t}),\label{eq:probbound}
+	\end{align}
+	for some numbers $B_{a,t}$ that we will soon determine.
+	Given $\delta>0$ we can use \eqref{eq:probbound} to construct the desired confidence interval:
+	\begin{align}
+		\pr{\forall t,a,|\hat\mu_{a,t}-\mu_a|\leq B_{a,t}}&= 1 - \pr{\exists a~\text{or}~t ~ |\hat \mu_{a,t}-\mu_a| \geq B_{a,t} }\\
+		&\geq 1 - \sum_{a=1}^K\sum_{t=1}^T2\exp(-2B_{a,t}^2N_{a,t}).\label{eq:inversebd}
+	\end{align}
+	Substituting
+	\begin{equation}
+		B_{a,t}=c_2\sqrt{\frac{\log(TK/\delta)}{N_{a,t}}}
+	\end{equation}
+	into \eqref{eq:inversebd} for an appropriately chosen constant $c_2$, we have
+	\begin{align}
+		\pr{\forall t,a, |\hat\mu_{a,t}-\mu_a|\leq B_{a,t}} &\geq 1 - \sum_{a=1}^K\sum_{t=1}^T2\exp\left(-2c_2^2\log(TK/\delta)\right)\\
+		&=1 - \sum_{a=1}^K\sum_{t=1}^T2\left(\frac{\delta}{TK}\right)^{2c_2^2}\\
+		&=1 - \sum_{a=1}^K\sum_{t=1}^T\frac{\delta}{TK}\\
+		&=1 - \delta.
+	\end{align}
+	This proves the result. Note that if we incorporate $K$ into the factor $c_1$, then we can get rid of the factor of $K$ in the log term in this and the remaining problems.
+
+	\item At time $t$ our confidence region for $\hat \mu_{a,t}$ is an interval of radius $c_2\sqrt{\tfrac{\log(TK/\delta)}{N_{a,t}}}$ about $\hat \mu_{a,t}$. In order for us to pull arm $a$ at this time $\mu_*$ must lie in this confidence interval. Note that $\mu_a$ also lies in this region with high probability. In the worst case $\mu_a$ and $\mu_*$ are at opposite ends of the confidence interval, i.e.
+	\begin{equation}
+		\Delta_a=\mu_*-\mu_a = 2c_2\sqrt{\frac{\log(TK/\delta)}{N_{a,t}}}.
+	\end{equation}
+	Hence the only way we pull arm $a$ at time $t$ is if
+	\begin{equation}
+		\begin{array}{crcl}
+			&\Delta_a &\leq& 2c_2\sqrt{\frac{\log(TK/\delta)}{N_{a,t}}}\\
+			\iff& \Delta_a^2 &\leq& 4c_2^2\frac{\log(TK/\delta)}{N_{a,t}}\\
+			\iff & N_{a,t} &\leq& c_3\frac{\log(TK/\delta)}{\Delta_a^2},
+		\end{array}
+	\end{equation}
+	where $c_3=4c_2^2$. If $N_{a,t}$ reaches this amount we will immediately stop pulling arm $a$, implying that
+	\begin{equation}
+		N_{a,T}\leq c_3\frac{\log(TK/\delta)}{\Delta_a^2}.
+	\end{equation}
+
+	\item Our total expected regret is
+	\begin{equation}
+		T\mu_*-\E{\sum_{t\leq T}X_t} = \E{T\mu_*-\sum_{t\leq T}} = \E{\sum_{t\leq T}(\mu_*-X_t)}=\sum_{t\leq T}\E{\mu_*-X_t}.
+	\end{equation}
+	If at time $t$ $X_t$ corresponds to choosing arm $a$ our previous results tell us that $\E{\mu_*-X_t}=\Delta_a$ with probability at least $1-\delta$. With probability at most $\delta$, $\E{\mu_*-X_t}>\Delta_a$. Assuming $\mu\in[0,1]$ as in class, the most $\mu_*-X_t$ could be is 1, which implies that $\Delta_a\leq \E{\mu_*-X_t}\leq 1$. Putting this all together and using the definition of expectation, we have that
+	\begin{equation}
+		\E{\mu_*-X_t}\leq (1-\delta)\Delta_a + \delta.
+	\end{equation}
+	Arm $a$ is pulled $N_{a,T}$ times, so using the bound on $N_{a,T}$ derived above, we see that the total regret can be bounded as follows
+	\begin{align}
+		T\mu_*-\E{\sum_{t\leq T}X_t} &= \sum_{t\leq T}\E{\mu_*-X_t}\\
+		&= \sum_{a=1}^K N_{a,T}\left( (1-\delta)\Delta_a + \delta\right)\\
+		&= \sum_{a=1}^K N_{a,T}(1-\delta)\Delta_a + \delta\sum_{a=1}^K N_{a,T}\\
+		&\leq \sum_{a=1}^K N_{a,T}\Delta_a + \delta T\\
+		&\leq c_3\sum_{a=1}^K \frac{\log(TK/\delta)}{\Delta_a}.
+	\end{align}
+
+\end{enumerate}
+
+% Problem 2
+\section{Let's try out Thompson sampling!}
+
+There are $K=5$ arms. Suppose that each arm $a$, if pulled, returns either a reward of  $1$ or $0$, with probability $p_a$ or $1-p_a$, respectively.
+
+Suppose we are Bayesian and that our prior belief is that $p_a$ is distributed according to a $\textrm{Beta}(1,1)$ distribution (i.e. our prior is uniform for each arm).
+
+Suppose the $5$ probabilities are: $p_1=1/6$, $p_1=1/2$, $p_3=2/3$, $p_4=3/4$, and $p_5=5/6$.
+
+Now let us try Thompson sampling.
+
+\begin{enumerate}
+	\item What are the $\mu_a$'s? And what is the maximal expected reward we can obtain in $T$ steps?
+	\item Write out an \emph{efficient} implementation of Thompson sampling algorithm for this problem. Make sure to specify the quantities the algorithm maintains in memory and the updates for the posterior distributions (along with their functional forms as Beta distributions).
+	\item Provide a plot of your average regret with time (so the $x$-axis is time and the $y$-axis is on the scale of reward). For the average regret, you will be dividing by $t$ at time $t$. Choose $T$ appropriately so that you can observe the behavior of the algorithm.
+	\item Now we will look at a few confidence interval figures (like we did in class). Choose four time steps appropriately (so that you can visualize how your confidence intervals are changing). For each time step, show a plot where the $x$ axis indexes the arm and the y-axis shows: the true $\mu_a$, your estimate $\hat \mu_a$, and a confidence interval (use the variance in your posterior distribution as proxy for a confidence interval). There should be four such plots; you should choose the time $t$ appropriately to visualize the changing behavior.
+	\item For each arm $a$, make a plot where the $x$-axis indexes the time $t$ and the $y$-axis shows $N_{a,t}/t$, i.e. the \emph{fraction} of time (up to time $t$) for which the algorithm pulled arm $a$. You may show all five curves on the same plot.
+	\item What is the first time $t$, where $N_{5,t}/t$ is above $0.95$ and that it stays above $0.95$ for at least $10$ steps in a row.
+\end{enumerate}
+
+\end{document}
