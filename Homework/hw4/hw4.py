@@ -18,15 +18,15 @@ class ThompsonSampling():
 	Uses Beta(1,1) priors for arms and assumes arm i is Bernoulli(probs[i]) 
 	"""
 	def __init__(self,k,probs,T,output_times=[]):
-		self.k = k 					# Number of arms
-		self.probs = np.array(probs)# Probabilities associated with each arm
-		self.T = T 					# Number of iterations to run
+		self.k            = k 					# Number of arms
+		self.probs        = np.array(probs)     # Probabilities associated with each arm
+		self.T            = T 					# Number of iterations to run
 		self.output_times = np.array(output_times)
-		self.t = 1
-		self.successes = np.ones(self.k)
-		self.failures = np.ones(self.k)
-		self.reward = 0
-		self.avg_regret = np.ones(self.T) * max(self.probs)
+		self.t            = 1
+		self.successes    = np.ones(self.k)
+		self.failures     = np.ones(self.k)
+		self.reward       = 0
+		self.avg_regret   = np.ones(self.T) * max(self.probs)
 
 	# Function to choose an arm, pull it, and update its posterior
 	def pull_arm(self):
@@ -38,15 +38,15 @@ class ThompsonSampling():
 			theta = np.random.beta(self.successes[i],self.failures[i])
 			if theta > mx:
 				mx = theta
-				a = i
+				a  = i
 
 		# Pull arm and update posterior/reward
 		r = np.random.binomial(1,self.probs[a])
 		if r == 1:
 			self.successes[a] += 1
-			self.reward += 1
+			self.reward       += 1
 		else:
-			self.failures[a] += 1
+			self.failures[a]  += 1
 
 		# Update average regret
 		self.avg_regret[self.t-1] -= (1. * self.reward ) / self.t
@@ -59,26 +59,34 @@ class ThompsonSampling():
 
 	# Get the variances of the posterior distributions
 	def get_var(self):
-		return (self.successes * self.failures) / ((self.successes + self.failures + 1.)(self.successes + self.failures)**2)
+		return (self.successes * self.failures) / ((self.successes + self.failures + 1.) * (self.successes + self.failures)**2)
 
 
 	# Run the actual Thompson sampling scheme
 	def run(self):
-		meanMat = np.empty((self.k,len(self.output_times)))
-		varMat = np.empty((self.k,len(self.output_times)))
 
 		for tt in xrange(self.T):
 			self.pull_arm()
 
-			if tt in self.output_times:
-				meanMat[:,tt] = self.get_means()
-				varMat[:,tt] = self.get_var()
-
-
-		return (meanMat, varMat)
+			if tt+1 in self.output_times:
+				self.plot_ci()
 
 
 
+	# Plot "confidence intervals" for the arms
+	def plot_ci(self):
+		means     = self.get_means()
+		variances = self.get_var()
+
+		plt.figure()
+		a = np.arange(1,self.k+1)
+		plt.plot(a,self.probs,'*',label="$\mu_a$")
+		plt.errorbar(a,means,fmt='o',yerr=variances*5,label="$\hat\mu_{a,t}$")
+		plt.xlabel('Arm')
+		plt.ylabel('$\mu$')
+		plt.legend()
+		plt.title("Confidence intervals at t = " + str(self.t-1))
+		plt.savefig("figures/CI_t" + str(self.t-1) + ".png")
 
 
 
@@ -86,24 +94,35 @@ class ThompsonSampling():
 
 
 
-# Main code
-k = 5
-probs = [1/6., 1/2., 2/3., 3/4., 5/6.]
-T = 300
+# ------------------------------------------------------------------------------
+# 								Main Code
+# ------------------------------------------------------------------------------
 
 
-TS = ThompsonSampling(k,probs,T)
-(meanMat,varMat) = TS.run()
 
+
+# Parameters
+k            = 5	                         	# Number of arms (each with Bernoulli(p) rewards)
+probs        = [1/6., 1/2., 2/3., 3/4., 5/6.]	# Probabilities for each arm
+T            = 1000                            	# Number of iterations
+output_times = [5, 25, 500, 1000]
+
+
+# Perform the Sampling
+TS = ThompsonSampling(k,probs,T,output_times)
+TS.run()
+
+
+# Plot the average regret
 plt.figure()
 plt.plot(TS.avg_regret)
 plt.xlabel('t')
 plt.ylabel('Average regret')
 plt.title('Average regret')
+plt.savefig('figures/avg_regret.png')
 
 
 
 
 
-
-plt.show()
+# plt.show()
