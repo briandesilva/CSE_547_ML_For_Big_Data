@@ -155,6 +155,8 @@ Recall $\mu_*=\max_i \mu_i$. Define $\Delta_i$ as:
 	for another appropriately chosen universal constant $c_4$. (Note that for this setting of $\delta$, our confidence intervals are still $\mathcal{O} \sqrt{\frac{\log(T)}{N_{a,t}}}$).
 \end{enumerate}
 
+\newpage
+
 \solution
 
 \begin{enumerate}
@@ -212,18 +214,28 @@ Recall $\mu_*=\max_i \mu_i$. Define $\Delta_i$ as:
 	\begin{equation}
 		T\mu_*-\E{\sum_{t\leq T}X_t} = \E{T\mu_*-\sum_{t\leq T}} = \E{\sum_{t\leq T}(\mu_*-X_t)}=\sum_{t\leq T}\E{\mu_*-X_t}.
 	\end{equation}
-	If at time $t$ $X_t$ corresponds to choosing arm $a$ our previous results tell us that $\E{\mu_*-X_t}=\Delta_a$ with probability at least $1-\delta$. With probability at most $\delta$, $\E{\mu_*-X_t}>\Delta_a$. Assuming $\mu\in[0,1]$ as in class, the most $\mu_*-X_t$ could be is 1, which implies that $\Delta_a\leq \E{\mu_*-X_t}\leq 1$. Putting this all together and using the definition of expectation, we have that
-	\begin{equation}
-		\E{\mu_*-X_t}\leq (1-\delta)\Delta_a + \delta.
-	\end{equation}
-	Arm $a$ is pulled $N_{a,T}$ times, so using the bound on $N_{a,T}$ derived above, we see that the total regret can be bounded as follows
+
+	If, at time $t$, $X_t$ corresponds to choosing arm $a$ our previous results tell us that $\E{\mu_*-X_t}=\Delta_a$. Since we pull arm $a$ a total of $N_{a,T}$ times, the above becomes
 	\begin{align}
 		T\mu_*-\E{\sum_{t\leq T}X_t} &= \sum_{t\leq T}\E{\mu_*-X_t}\\
-		&= \sum_{a=1}^K N_{a,T}\left( (1-\delta)\Delta_a + \delta\right)\\
-		&= \sum_{a=1}^K N_{a,T}(1-\delta)\Delta_a + \delta\sum_{a=1}^K N_{a,T}\\
-		&\leq \sum_{a=1}^K N_{a,T}\Delta_a + \delta T\\
-		&\leq c_3\sum_{a=1}^K \frac{\log(TK/\delta)}{\Delta_a}.
+		&= \sum_{a=1}^K N_{a,T}\Delta_a.
 	\end{align}
+	Using the bound derived in the previous problem to bound $N_{a,T}$, we have
+	\begin{equation}
+		T\mu_*-\E{\sum_{t\leq T}X_t} = \sum_{a=1}^K N_{a,T}\Delta_a \leq c_3\sum_{a=1}^K \frac{\log(TK/\delta)}{\Delta_a} \leq c_3\sum_{a=1}^K \frac{\log(TK/\delta)}{\Delta_a} + \delta T.
+	\end{equation}
+	% with probability at least $1-\delta$. With probability at most $\delta$, $\E{\mu_*-X_t}>\Delta_a$. Assuming $\mu\in[0,1]$ as in class, the most $\mu_*-X_t$ could be is 1, which implies that $\Delta_a\leq \E{\mu_*-X_t}\leq 1$. Putting this all together and using the definition of expectation, we have that
+	% \begin{equation}
+	% 	\E{\mu_*-X_t}\leq (1-\delta)\Delta_a + \delta.
+	% \end{equation}
+	% Arm $a$ is pulled $N_{a,T}$ times, so using the bound on $N_{a,T}$ derived above, we see that the total regret can be bounded as follows
+	% \begin{align}
+	% 	T\mu_*-\E{\sum_{t\leq T}X_t} &= \sum_{t\leq T}\E{\mu_*-X_t}\\
+	% 	&= \sum_{a=1}^K N_{a,T}\left( (1-\delta)\Delta_a + \delta\right)\\
+	% 	&= \sum_{a=1}^K N_{a,T}(1-\delta)\Delta_a + \delta\sum_{a=1}^K N_{a,T}\\
+	% 	&\leq \sum_{a=1}^K N_{a,T}\Delta_a + \delta T\\
+	% 	&\leq c_3\sum_{a=1}^K \frac{\log(TK/\delta)}{\Delta_a} + \delta T.
+	% \end{align}
 
 \end{enumerate}
 
@@ -245,6 +257,69 @@ Now let us try Thompson sampling.
 	\item Now we will look at a few confidence interval figures (like we did in class). Choose four time steps appropriately (so that you can visualize how your confidence intervals are changing). For each time step, show a plot where the $x$ axis indexes the arm and the y-axis shows: the true $\mu_a$, your estimate $\hat \mu_a$, and a confidence interval (use the variance in your posterior distribution as proxy for a confidence interval). There should be four such plots; you should choose the time $t$ appropriately to visualize the changing behavior.
 	\item For each arm $a$, make a plot where the $x$-axis indexes the time $t$ and the $y$-axis shows $N_{a,t}/t$, i.e. the \emph{fraction} of time (up to time $t$) for which the algorithm pulled arm $a$. You may show all five curves on the same plot.
 	\item What is the first time $t$, where $N_{5,t}/t$ is above $0.95$ and that it stays above $0.95$ for at least $10$ steps in a row.
+\end{enumerate}
+
+
+\solution
+
+The code for this problem is given in {\tt hw4.py}.
+\begin{enumerate}
+	\item Since arm $a$ returns a reward of 1 with probability $p_a$ and a reward of 0 with probability $1-p_a$, the distribution governing its reward is just Bernoulli with parameter $p_a$. Hence $\mu_a=p_a$. In this particular case $\mu_*=\mu_5=5/6$ so the maximal \emph{expected} reward after $T$ steps is $T\mu_*=5T/6$.
+
+	\item TODO
+
+	\item 
+	\begin{figure}
+		\centering
+		\includegraphics[width=.75\textwidth]{figures/avg_regret}
+		\caption{The average regret over 10000 iterations of Thompson sampling.} 
+		\label{fig:avg_regret}
+	\end{figure}
+	Figure \ref{fig:avg_regret} plots the average regret as a function of $t$ for 10000 iterations of Thompson sampling.
+
+	\item 
+	\begin{figure}
+		\centering
+		\begin{subfigure}{0.49\textwidth}
+			\centering
+			\includegraphics[width=.95\textwidth]{figures/CI_t5}
+			\caption{Confidence intervals at $t=5$} 
+			\label{fig:CI_t5}
+		\end{subfigure}
+		\begin{subfigure}{0.49\textwidth}
+			\centering
+			\includegraphics[width=.95\textwidth]{figures/CI_t25}
+			\caption{Confidence intervals at $t=25$} 
+			\label{fig:CI_t25}
+		\end{subfigure}
+		\begin{subfigure}{0.49\textwidth}
+			\centering
+			\includegraphics[width=.95\textwidth]{figures/CI_t500}
+			\caption{Confidence intervals at $t=500$} 
+			\label{fig:CI_t500}
+		\end{subfigure}
+		\begin{subfigure}{0.49\textwidth}
+			\centering
+			\includegraphics[width=.95\textwidth]{figures/CI_t1000}
+			\caption{Confidence intervals at $t=1000$} 
+			\label{fig:CI_t1000}
+		\end{subfigure}
+		\caption{Confidence intervals at various times.}
+		\label{fig:CIs}
+	\end{figure}
+
+	Figure \ref{fig:CIs} shows the ``confidence intervals'' at multiple times. The radii of the confidence intervals plotted is five times the variance of the posterior distributions. Without the factor of five the intervals become hard to see. Note that the intervals for the arms with higher empirical means are much tighter for larger values of $t$ since they are pulled more often. Initially, however, not much information has been collected about the arms so all the confidence intervals are quite wide.
+
+	\item 
+	\begin{figure}
+		\centering
+		\includegraphics[width=.75\textwidth]{figures/N_at}
+		\caption{Fraction of time the algorithm has pulled arm $a$ up to time $t$.} 
+		\label{fig:N_at}
+	\end{figure}
+	Figure \ref{fig:N_at} shows the fraction of the time, up to time $t$, the algorithm has pulled arm $a$, i.e. it plots $N_{a,t}$ as a function of $t$ for each arm.
+
+	\item For the included plots the first time $N_{5,t}/t$ was above 0.95 for at least 10 steps in a row was $t=4241$.
 \end{enumerate}
 
 \end{document}
