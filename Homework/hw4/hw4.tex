@@ -101,13 +101,15 @@
 \newcommand{\pr}[1]{\text{Pr}\left(#1\right)}
 \newcommand{\E}[1]{\mathbb{E}\left(#1\right)}
 
+\DeclareMathOperator*{\argmax}{arg\,max}
+
 
 \begin{document}
 \maketitle
 \pagebreak
 
 \section*{Collaborators}
-I collaborated with ***
+I collaborated with Weston Barger and Emily Dinan on various parts of both problems.
 
 
 % Problem 1
@@ -266,7 +268,26 @@ The code for this problem is given in {\tt hw4.py}.
 \begin{enumerate}
 	\item Since arm $a$ returns a reward of 1 with probability $p_a$ and a reward of 0 with probability $1-p_a$, the distribution governing its reward is just Bernoulli with parameter $p_a$. Hence $\mu_a=p_a$. In this particular case $\mu_*=\mu_5=5/6$ so the maximal \emph{expected} reward after $T$ steps is $T\mu_*=5T/6$.
 
-	\item TODO
+	\item The posterior for a $\text{Beta}(\alpha,\beta)$ distribution is $\text{Beta}(\alpha+1,\beta)$ if a success is observed and is $\text{Beta}(\alpha,\beta+1)$ if a failure is observed. A success occurs if we receive a reward of 1 after pulling an arm and a failure occurs if we receive a reward of 0. Since the priors for each arm are Beta$(1,1)$, we simply need to keep track of the number of successes and failures for each. For each arm $a$, we define two variables, $S_a$ and $F_a$, which are initialized as 0 and are incremented when we encounter a success or failure after pulling arm $a$. We also store a scalar, $R$, which tracks the total rewards we have accrued. Below we give pseudocode for our Thompson sampling procedure.
+
+	\begin{algorithm}
+    \TitleOfAlgo{Thompson sampling}
+    \For{$t=1,2,\dots,T$}{
+    	\For{$a=1,2,\dots,K$}{
+    		Sample $\theta_a$ from Beta$(S_a+1,F_a+1)$\;
+    	}
+    	$a\gets \argmax_k \theta_k$\;
+    	Sample reward, $r$, of pulling arm $a$ from Bernoulli$(p_a)$\;
+    	$R\gets R+1$\;
+    	\eIf{$r$=1}{
+    		$S_a\gets S_a+1$\;
+    	}{
+    		$F_a\gets F_a+1$\;
+    	}
+    }
+    \caption{Thompson sampling pseudocode}
+    \label{alg1}
+    \end{algorithm}
 
 	\item 
 	\begin{figure}

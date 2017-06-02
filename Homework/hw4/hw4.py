@@ -121,7 +121,7 @@ class ThompsonSampling():
 # Parameters
 k            = 5	                         	# Number of arms (each with Bernoulli(p) rewards)
 probs        = [1/6., 1/2., 2/3., 3/4., 5/6.]	# Probabilities for each arm
-T            = 10000                            	# Number of iterations
+T            = 10000                            # Number of iterations
 output_times = [5, 25, 500, 1000]
 
 
