@@ -11,8 +11,8 @@ We studied the problem of fraud detection in a synthetic data set (located [here
 
 At the moment there are two subdirectories of the Project folder:
 1. **Code**: contains some of the Jupyter notebooks written for the project
-..* **Costcla.ipynb**: this file contains the bulk of our work on the project. Here we compare the performance of various cost-sensitive classifiers (as implemented in the [CostCla](https://pypi.python.org/pypi/costcla/0.5) package).
-..* **data_analysis.ipynb**: here we perform some exploratory data analysis, as the file name suggests. We also examine the effect varying the financial cost of investigating a potentially fraudulent transaction has on the costs of some baseline classifiers.
+	* **Costcla.ipynb**: this file contains the bulk of our work on the project. Here we compare the performance of various cost-sensitive classifiers (as implemented in the [CostCla](https://pypi.python.org/pypi/costcla/0.5) package).
+	* **data_analysis.ipynb**: here we perform some exploratory data analysis, as the file name suggests. We also examine the effect varying the financial cost of investigating a potentially fraudulent transaction has on the costs of some baseline classifiers.
 2. **Report**: contains a pdf of our final report
 
 Note that extra files containing the actual Paysim data (along with the output of some neural networks we trained to classify transactions) are required to run these notebooks.
